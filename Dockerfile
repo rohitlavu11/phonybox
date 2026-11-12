@@ -9,7 +9,7 @@
 
 # ---------------------------------------------------------------- web app
 # Static files only, so build them natively even when targeting another architecture.
-FROM --platform=$BUILDPLATFORM node:24-alpine AS web
+FROM --platform=$BUILDPLATFORM node:25-alpine AS web
 WORKDIR /src
 RUN corepack enable
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
