@@ -49,8 +49,8 @@ jobs:
       run:
         working-directory: apps/server
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
       - run: uv sync --locked --all-groups
@@ -68,7 +68,7 @@ jobs:
       - name: Golden files and OpenAPI snapshot are unchanged
         run: git diff --exit-code -- tests/golden ../../contracts
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: contract-report-${{ matrix.db }}
@@ -87,8 +87,8 @@ jobs:
       run:
         working-directory: apps/server
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
       - run: uv sync --locked --all-groups
@@ -98,7 +98,7 @@ jobs:
         run: uv run --no-sync python -c "import telnyx, importlib.metadata as m; print(f'telnyx {telnyx.__version__}, mailgun {m.version(\"mailgun\")}')" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Live sockets + SDKs
         run: uv run --no-sync pytest -m live -p no:cacheprovider --junitxml=reports/sdk-${{ matrix.versions }}.xml
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: sdk-report-${{ matrix.versions }}
@@ -109,9 +109,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
