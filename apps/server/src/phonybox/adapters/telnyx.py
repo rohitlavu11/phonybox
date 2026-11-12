@@ -601,6 +601,13 @@ ADAPTER = AdapterSpec(
     channels=("sms", "fax"),
     port_offset=2,
     base_path="/v2",
+    sdk_setup=(
+        "Node telnyx: new Telnyx({ apiKey, baseURL: '{url}' }). "
+        "Python telnyx: Telnyx(api_key=key, base_url='{url}'). "
+        "Plain HTTP: POST {url}/messages or {url}/faxes with Authorization: Bearer <any key>. "
+        "Send from one of the appNumbers. Verify webhooks with the publicKey setting (Ed25519), "
+        "e.g. Telnyx(public_key=...).webhooks.unwrap(body, headers)."
+    ),
     defaults=lambda emu: {**DEFAULTS, "publicKey": emu.signer.public_key_b64},
     build_app=build_app,
     send_to_app=_inbound,

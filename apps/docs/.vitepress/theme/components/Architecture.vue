@@ -57,7 +57,7 @@
         <rect x="810" y="160" width="134" height="100" rx="10" class="box" />
         <text x="877" y="196" class="title">Control API</text>
         <text x="877" y="218" class="mono">:4100 /api</text>
-        <text x="877" y="238" class="sub">REST · SSE</text>
+        <text x="877" y="238" class="sub">REST · SSE · MCP</text>
       </g>
       <g>
         <rect x="810" y="40" width="134" height="64" rx="10" class="box client" />
@@ -67,7 +67,7 @@
       <g>
         <rect x="810" y="316" width="134" height="64" rx="10" class="box client" />
         <text x="877" y="344" class="title">Agents</text>
-        <text x="877" y="364" class="sub">tests · MCP (soon)</text>
+        <text x="877" y="364" class="sub">tests · MCP</text>
       </g>
 
       <!-- app -> adapters -->

@@ -12,6 +12,7 @@ Phonybox is one Python process (FastAPI + uvicorn) serving several ports, one st
 | **Store** | `store.py`, `db.py` | Inboxes, messages, webhook and API logs, adapter settings. SQLite (default) or PostgreSQL behind one portable SQL layer. |
 | **Scheduler & deliverer** | `scheduler.py` | Runs timed work off an injected clock: delayed receipts, fax lifecycles, webhook delivery and retries. Records every attempt. |
 | **Control API** | `control.py`, `models.py` | `/api` for the inspector and agents, plus a server-sent events feed. Its OpenAPI document is the UI's contract. |
+| **MCP server** | `mcp_server.py` | `/mcp` on the control port (and `phonybox mcp` over stdio): agent tools that wrap the control API. |
 | **Inspector** | `apps/web/` | React, Vite, TanStack Query and shadcn/ui. Talks only to the control API. |
 | **Contracts** | `contracts/` | Provider JSON Schemas and the control-API OpenAPI snapshot, shared by server tests and UI type checks. |
 

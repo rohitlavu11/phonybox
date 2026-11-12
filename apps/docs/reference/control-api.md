@@ -2,6 +2,8 @@
 
 Base URL `http://localhost:4100/api`. Interactive docs at `/api/docs`; the OpenAPI document is at `/api/openapi.json` and is snapshotted in [`contracts/control-api.openapi.json`](https://github.com/rohitlavu11/phonybox/blob/main/contracts/control-api.openapi.json).
 
+Agents that speak MCP can use [the MCP server](/guide/mcp) at `/mcp` instead; its tools wrap these endpoints.
+
 Fields are camelCase. Lists return `{items, total, nextCursor}`; pass `cursor` (and `limit`, max 500) to page.
 
 ## Inboxes

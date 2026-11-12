@@ -56,7 +56,7 @@ TELNYX_BASE_URL=http://localhost:4102/v2</code></pre>
       <div class="step">
         <span class="n">02</span>
         <h3>Let the agent work</h3>
-        <p>Give each run its own inbox, then wait for the message and take the code out of it.</p>
+        <p>Give each run its own inbox, then wait for the message and take the code out of it. Or <a :href="withBase('/guide/mcp')">let Claude do it</a> over MCP.</p>
         <pre><code>POST /api/inboxes  <span class="c">{"channel":"sms"}</span>
 GET  /api/inboxes/+14155550100/wait
 <span class="c">→ {"extract":{"codes":["731604"]}}</span></code></pre>
@@ -83,8 +83,8 @@ telnyx-signature-ed25519: rxUmN3KQ…
           <p>Bounced mail, STOP opt-outs, busy fax lines, carrier errors. And your own handler returning 500, retried on the provider's schedule.</p>
         </div>
         <div>
-          <h3>Inboxes as test fixtures</h3>
-          <p>Create one per run over HTTP, tag it, long-poll it, extract codes and links, delete everything with that tag when you're done.</p>
+          <h3>Claude can run the test</h3>
+          <p>An <a :href="withBase('/guide/mcp')">MCP server</a> gives Claude Code inboxes, waits, codes, links and replies as tools. Or script it over HTTP: an inbox per run, tagged, deleted by tag when you're done.</p>
         </div>
         <div>
           <h3>Deterministic when you need it</h3>
@@ -289,6 +289,18 @@ code {
 .step p {
   font-size: 14px;
   min-height: 3.2em;
+}
+.step p a,
+.why p a {
+  color: var(--vp-c-text-1);
+  text-decoration: underline;
+  text-decoration-color: var(--pb-signal);
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+}
+.step p a:hover,
+.why p a:hover {
+  color: var(--pb-signal);
 }
 .step pre {
   margin: 16px 0 0;

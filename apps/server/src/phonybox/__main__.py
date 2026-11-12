@@ -43,7 +43,16 @@ def main(argv: list[str] | None = None) -> None:
         description="Local Mailgun and Telnyx emulators with an inspector UI, for testing apps and agents that send email, SMS and fax.",
         epilog="Each flag can be set with PHONYBOX_<FLAG> (e.g. PHONYBOX_SEED=empty, PHONYBOX_WEBHOOK_BASE=http://host.docker.internal:3000).",
     )
-    p.add_argument("command", nargs="?", default="serve", choices=["serve", "openapi"])
+    p.add_argument(
+        "command",
+        nargs="?",
+        default="serve",
+        choices=["serve", "mcp", "openapi"],
+        help="serve (default): run Phonybox. mcp: MCP server over stdio for clients that launch a command, "
+        "using the Phonybox at --url (every Phonybox also serves MCP over HTTP at /mcp). "
+        "openapi: print the control API's OpenAPI document.",
+    )
+    p.add_argument("--url", default=_env("URL", "http://localhost:4100"), help="With `mcp`: the running Phonybox to use.")
     p.add_argument("--host", default=_env("HOST", "127.0.0.1"), help="Interface to bind (0.0.0.0 in Docker).")
     p.add_argument("--port", type=int, default=int(_env("PORT", "4100") or 4100), help="UI + control API. Mailgun and Telnyx use the next two ports.")
     p.add_argument("--mailgun-port", type=int, default=_int(_env("MAILGUN_PORT")))
@@ -56,6 +65,12 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--ui", type=Path, help="Built web app directory (default: auto-detected).")
     p.add_argument("--version", action="version", version=__version__)
     args = p.parse_args(argv)
+
+    if args.command == "mcp":  # stdout is the protocol: print nothing else
+        from .mcp_server import run_stdio
+
+        run_stdio(args.url)
+        return
 
     cfg = Config(
         host=args.host,
@@ -78,7 +93,7 @@ def main(argv: list[str] | None = None) -> None:
         sys.stdout.write("\n")
         return
 
-    if cfg.db_path != ":memory:":
+    if cfg.db_path != ":memory:" and "://" not in cfg.db_path:  # a SQLite file, not a database URL
         Path(cfg.db_path).parent.mkdir(parents=True, exist_ok=True)
     emu = Emulator(cfg)
     print(f"phonybox {__version__}", flush=True)
@@ -87,6 +102,7 @@ def main(argv: list[str] | None = None) -> None:
 
     for spec in REGISTRY.values():
         print(f"  {spec.name:<17} {cfg.base_url(emu.port(spec.id))}{spec.base_path}")
+    print(f"  MCP (for agents)  {cfg.base_url(cfg.control_port)}/mcp")
     print(f"  Webhooks to       {cfg.webhook_base}")
     print(f"  Telnyx public key {emu.signer.public_key_b64}")
     print(f"  Seed              {cfg.dataset}{'' if cfg.db_path == ':memory:' else f'  (db: {_redact(cfg.db_path)})'}", flush=True)

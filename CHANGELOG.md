@@ -4,6 +4,19 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+### Added
+
+- **MCP server** at `/mcp` on every Phonybox (and `phonybox mcp` over stdio), so Claude Code and other MCP clients can test an app's email, SMS and fax flows: create inboxes, wait for messages with codes and links (with link text) extracted, reply as the person, inspect and replay webhooks, see the app's provider API calls, and change provider settings. A timed-out wait explains what Phonybox did or didn't receive from the app.
+- `AdapterSpec.sdk_setup`: an optional line on pointing the provider's SDK at the adapter, shown to agents by `get_setup`.
+
+### Changed
+
+- The inspector's **Agent access** page shows the real MCP setup for this server and the actual tools and endpoints.
+
+### Fixed
+
+- `--db postgresql://…` no longer creates a stray directory named after the URL.
+
 ## [0.1.0]
 
 First public release.

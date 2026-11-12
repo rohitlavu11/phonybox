@@ -168,7 +168,8 @@ class Emulator:
                 loop.add_signal_handler(sig, self.stop)
         ticker = asyncio.create_task(self.scheduler_loop())
         try:
-            await asyncio.gather(*(s.serve() for s in servers))
+            async with self.control.state.mcp.session_manager.run():  # the /mcp endpoint
+                await asyncio.gather(*(s.serve() for s in servers))
         finally:
             ticker.cancel()
             await self.aclose()
