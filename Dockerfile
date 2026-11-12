@@ -21,7 +21,7 @@ COPY apps/web apps/web
 RUN pnpm --filter @phonybox/web build
 
 # ----------------------------------------------------------------- server
-FROM python:3.13-slim AS server
+FROM python:3.15-slim AS server
 COPY --from=ghcr.io/astral-sh/uv:0.11.8 /uv /usr/local/bin/uv
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=never
 WORKDIR /app
@@ -33,7 +33,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev --extra postgres --no-editable
 
 # ---------------------------------------------------------------- runtime
-FROM python:3.13-slim
+FROM python:3.15-slim
 LABEL org.opencontainers.image.title="Phonybox" \
       org.opencontainers.image.description="Local Mailgun and Telnyx emulators for testing apps and AI agents that send email, SMS and fax." \
       org.opencontainers.image.source="https://github.com/rohitlavu11/phonybox" \
