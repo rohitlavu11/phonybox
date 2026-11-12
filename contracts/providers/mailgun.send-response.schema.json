@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "mailgun.send-response.schema.json",
+  "title": "Mailgun: POST /v3/{domain}/messages 200",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "message"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^<[^<>@]+@[^<>@]+>$"
+    },
+    "message": {
+      "const": "Queued. Thank you."
+    }
+  }
+}

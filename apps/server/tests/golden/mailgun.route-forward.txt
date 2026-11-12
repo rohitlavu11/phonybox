@@ -1,0 +1,72 @@
+--phonybox-4dbed324a9bc526d
+Content-Disposition: form-data; name="recipient"
+
+support@mg.acme.test
+--phonybox-4dbed324a9bc526d
+Content-Disposition: form-data; name="sender"
+
+qa@inbox.test
+--phonybox-4dbed324a9bc526d
+Content-Disposition: form-data; name="from"
+
+QA <qa@inbox.test>
+--phonybox-4dbed324a9bc526d
+Content-Disposition: form-data; name="subject"
+
+Re: Reset
+--phonybox-4dbed324a9bc526d
+Content-Disposition: form-data; name="body-plain"
+
+Link expired.
+
+On Tue, Acme wrote:
+> old
+--phonybox-4dbed324a9bc526d
+Content-Disposition: form-data; name="stripped-text"
+
+Link expired.
+--phonybox-4dbed324a9bc526d
+Content-Disposition: form-data; name="stripped-signature"
+
+
+--phonybox-4dbed324a9bc526d
+Content-Disposition: form-data; name="attachment-count"
+
+0
+--phonybox-4dbed324a9bc526d
+Content-Disposition: form-data; name="message-headers"
+
+[["Message-Id", "<em-d6b5915c@inbox.test>"], ["Date", "Wed, 11 Nov 2026 18:42:00 +0000"], ["From", "QA <qa@inbox.test>"], ["To", "support@mg.acme.test"], ["Subject", "Re: Reset"], ["X-Phonybox-Origin", "inbox"]]
+--phonybox-4dbed324a9bc526d
+Content-Disposition: form-data; name="Message-Id"
+
+<em-d6b5915c@inbox.test>
+--phonybox-4dbed324a9bc526d
+Content-Disposition: form-data; name="To"
+
+support@mg.acme.test
+--phonybox-4dbed324a9bc526d
+Content-Disposition: form-data; name="From"
+
+QA <qa@inbox.test>
+--phonybox-4dbed324a9bc526d
+Content-Disposition: form-data; name="Subject"
+
+Re: Reset
+--phonybox-4dbed324a9bc526d
+Content-Disposition: form-data; name="Date"
+
+Wed, 11 Nov 2026 18:42:00 +0000
+--phonybox-4dbed324a9bc526d
+Content-Disposition: form-data; name="timestamp"
+
+1794422520
+--phonybox-4dbed324a9bc526d
+Content-Disposition: form-data; name="token"
+
+673aeeb08cfbb00b91e5e3c60b5ba31896d55b522b1be2dccb
+--phonybox-4dbed324a9bc526d
+Content-Disposition: form-data; name="signature"
+
+ee7171b3308f975f06562621231d5da9311b3619d659894794e3214cd4b9e175
+--phonybox-4dbed324a9bc526d--

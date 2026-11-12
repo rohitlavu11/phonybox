@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "telnyx.fax.schema.json",
+  "title": "Telnyx: fax record",
+  "type": "object",
+  "required": [
+    "record_type",
+    "id",
+    "connection_id",
+    "direction",
+    "from",
+    "to",
+    "status",
+    "quality",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "record_type": {
+      "const": "fax"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "connection_id": {
+      "type": "string"
+    },
+    "direction": {
+      "enum": [
+        "outbound",
+        "inbound"
+      ]
+    },
+    "from": {
+      "type": "string",
+      "pattern": "^\\+[1-9]\\d{7,14}$"
+    },
+    "to": {
+      "type": "string",
+      "pattern": "^\\+[1-9]\\d{7,14}$"
+    },
+    "media_url": {
+      "type": "string",
+      "pattern": "^https?://"
+    },
+    "quality": {
+      "enum": [
+        "normal",
+        "high",
+        "very_high",
+        "ultra_light",
+        "ultra_dark"
+      ]
+    },
+    "status": {
+      "enum": [
+        "queued",
+        "media.processed",
+        "originated",
+        "sending",
+        "delivered",
+        "failed",
+        "initiated",
+        "receiving",
+        "media.processing",
+        "received"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

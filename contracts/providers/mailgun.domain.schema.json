@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "mailgun.domain.schema.json",
+  "title": "Mailgun: GET /v3/domains/{domain}",
+  "type": "object",
+  "required": [
+    "domain",
+    "receiving_dns_records",
+    "sending_dns_records"
+  ],
+  "properties": {
+    "domain": {
+      "type": "object",
+      "required": [
+        "name",
+        "state",
+        "created_at",
+        "smtp_login",
+        "type"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "active",
+            "unverified",
+            "disabled"
+          ]
+        }
+      }
+    }
+  }
+}

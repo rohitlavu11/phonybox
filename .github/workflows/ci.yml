@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  TZ: UTC
+  UV_PYTHON: "3.13"
+
+jobs:
+  server:
+    name: Server (${{ matrix.db }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        db: [sqlite, postgres]
+    services:
+      postgres:
+        # Started for both legs (services can't be conditional); only the postgres leg uses it.
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U postgres"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+    defaults:
+      run:
+        working-directory: apps/server
+    env:
+      PHONYBOX_TEST_DATABASE_URL: ${{ matrix.db == 'postgres' && 'postgresql://postgres:postgres@localhost:5432/postgres' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked --all-groups
+      - run: uv run ruff check
+      - name: Tests (contract + live + SDKs)
+        run: uv run pytest -p no:cacheprovider
+      - name: Golden files and OpenAPI snapshot are unchanged
+        run: git diff --exit-code -- tests/golden ../../contracts
+
+  web:
+    name: Inspector
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: UI types match the control API
+        run: pnpm --filter @phonybox/web contract
+      - name: Generated types are committed
+        run: git diff --exit-code -- apps/web/src/api/schema.gen.ts
+      - run: pnpm --filter @phonybox/web lint
+      - run: pnpm --filter @phonybox/web build
+
+  examples:
+    name: Examples
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Start Phonybox
+        working-directory: apps/server
+        run: |
+          uv sync --locked --no-dev
+          uv run --no-sync phonybox --seed empty > ../../phonybox.log 2>&1 &
+          for _ in $(seq 1 60); do curl -sf localhost:4100/api/health && exit 0; sleep 0.5; done
+          cat ../../phonybox.log; exit 1
+      - run: python3 examples/python/email_signup.py
+      - run: node examples/node/sms_2fa.mjs

@@ -1,0 +1,65 @@
+[project]
+name = "phonybox"
+version = "0.1.0"
+description = "Local, stateful Mailgun and Telnyx emulators for testing apps and AI agents that send email, SMS and fax."
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.120",
+  "uvicorn>=0.38",
+  "httpx>=0.28",
+  "cryptography>=45",
+  "python-multipart>=0.0.20",
+  "pydantic>=2.11",
+]
+
+[project.optional-dependencies]
+#: pip install 'phonybox[postgres]' to use --db postgresql://…
+postgres = ["psycopg[binary]>=3.2"]
+
+[project.scripts]
+phonybox = "phonybox.__main__:main"
+
+[dependency-groups]
+dev = [
+  "psycopg[binary]>=3.2",
+  "pytest>=8.4",
+  "pytest-asyncio>=1.0",
+  "jsonschema>=4.25",
+  "ruff>=0.14",
+]
+sdk = [
+  "telnyx>=4",
+  "pynacl>=1.5",
+  "mailgun>=1.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/phonybox"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = "-p no:randomly --strict-markers"
+markers = [
+  "contract: provider or control-API contract (deterministic, runs nightly)",
+  "live: starts real servers on ephemeral ports (SSE, sockets)",
+  "sdk: drives the emulator with the official provider SDKs over real sockets",
+]
+filterwarnings = ["error::pytest.PytestUnraisableExceptionWarning"]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+pythonVersion = "3.13"
+
+[tool.ruff]
+line-length = 160
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]

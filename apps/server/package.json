@@ -1,0 +1,11 @@
+{
+  "name": "@phonybox/server",
+  "private": true,
+  "description": "Python server. Managed with uv; these scripts let pnpm run it alongside the UI.",
+  "scripts": {
+    "dev": "uv run phonybox",
+    "test": "uv run pytest",
+    "test:contracts": "uv run pytest -m 'contract'",
+    "openapi": "uv run phonybox openapi > ../../contracts/control-api.openapi.json"
+  }
+}

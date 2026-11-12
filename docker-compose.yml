@@ -1,0 +1,47 @@
+# Phonybox with Docker Compose.
+#
+#   docker compose up
+#       SQLite in memory, fresh on every start.
+#
+#   PHONYBOX_DB=postgresql://phonybox:phonybox@postgres:5432/phonybox docker compose --profile postgres up
+#       State in PostgreSQL, kept across restarts. (Or put PHONYBOX_DB in a .env file.)
+#
+# Your app reaches phonybox at http://localhost:4101 (Mailgun) and :4102/v2 (Telnyx),
+# or at http://phonybox:4101 from another service in this file.
+
+services:
+  phonybox:
+    image: ghcr.io/rohitlavu11/phonybox:latest
+    build: .
+    ports:
+      - "4100:4100" # inspector UI + control API
+      - "4101:4101" # Mailgun
+      - "4102:4102" # Telnyx
+    environment:
+      # Where your app receives webhooks. host.docker.internal = your machine.
+      PHONYBOX_WEBHOOK_BASE: ${PHONYBOX_WEBHOOK_BASE:-http://host.docker.internal:3000}
+      PHONYBOX_SEED: ${PHONYBOX_SEED:-small}
+      PHONYBOX_DB: ${PHONYBOX_DB:-:memory:}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: false # only when the postgres profile is on
+
+  postgres:
+    image: postgres:17
+    profiles: [postgres]
+    environment:
+      POSTGRES_USER: phonybox
+      POSTGRES_PASSWORD: phonybox
+      POSTGRES_DB: phonybox
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "phonybox"]
+      interval: 2s
+      retries: 30
+
+volumes:
+  pgdata:

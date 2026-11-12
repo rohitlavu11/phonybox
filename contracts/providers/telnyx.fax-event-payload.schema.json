@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "telnyx.fax-event-payload.schema.json",
+  "title": "Telnyx: fax.* webhook payload",
+  "type": "object",
+  "required": [
+    "connection_id",
+    "direction",
+    "fax_id",
+    "from",
+    "to",
+    "status"
+  ],
+  "properties": {
+    "fax_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "from": {
+      "type": "string",
+      "pattern": "^\\+[1-9]\\d{7,14}$"
+    },
+    "to": {
+      "type": "string",
+      "pattern": "^\\+[1-9]\\d{7,14}$"
+    },
+    "status": {
+      "enum": [
+        "queued",
+        "media.processed",
+        "sending",
+        "delivered",
+        "failed",
+        "received"
+      ]
+    },
+    "page_count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "failure_reason": {
+      "type": "string"
+    },
+    "media_url": {
+      "type": "string",
+      "pattern": "^https?://"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "failed"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "failure_reason"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "received"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "media_url",
+          "page_count"
+        ]
+      }
+    }
+  ]
+}

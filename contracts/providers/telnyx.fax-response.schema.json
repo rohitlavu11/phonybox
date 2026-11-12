@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "telnyx.fax-response.schema.json",
+  "title": "Telnyx: POST/GET /v2/faxes/{id}",
+  "type": "object",
+  "required": [
+    "data"
+  ],
+  "properties": {
+    "data": {
+      "$ref": "telnyx.fax.schema.json"
+    }
+  }
+}

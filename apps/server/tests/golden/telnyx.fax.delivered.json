@@ -1,0 +1,23 @@
+{
+  "data": {
+    "event_type": "fax.delivered",
+    "id": "b37ae13e-618c-42a9-af59-5ca5d1af15ec",
+    "occurred_at": "2026-11-11T18:42:05.000Z",
+    "payload": {
+      "call_duration_secs": 14,
+      "connection_id": "local-fax-app",
+      "direction": "outbound",
+      "fax_id": "673aeeb0-8cfb-400b-91e5-e3c60b5ba318",
+      "from": "+16285550150",
+      "page_count": 1,
+      "status": "delivered",
+      "to": "+12125550199",
+      "user_id": "6c0d4c8f-7a3b-4d6a-9b2f-1f2e3d4c5b6a"
+    },
+    "record_type": "event"
+  },
+  "meta": {
+    "attempt": 1,
+    "delivered_to": "http://localhost:3000/webhooks/telnyx/fax"
+  }
+}

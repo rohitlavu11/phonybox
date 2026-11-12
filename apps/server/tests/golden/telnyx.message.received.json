@@ -1,0 +1,48 @@
+{
+  "data": {
+    "event_type": "message.received",
+    "id": "85f2ef98-7b76-44c3-bc08-1acef84e0a73",
+    "occurred_at": "2026-11-11T18:42:00.000Z",
+    "payload": {
+      "cc": [],
+      "completed_at": null,
+      "cost": null,
+      "direction": "inbound",
+      "encoding": "GSM-7",
+      "errors": [],
+      "from": {
+        "carrier": "phonybox",
+        "line_type": "Wireless",
+        "phone_number": "+14155550142"
+      },
+      "id": "673aeeb0-8cfb-400b-91e5-e3c60b5ba318",
+      "media": [],
+      "messaging_profile_id": "40017f3a-5b8e-4c1d-9a7e-2f6b1c0d8e44",
+      "organization_id": "6c0d4c8f-7a3b-4d6a-9b2f-1f2e3d4c5b6a",
+      "parts": 1,
+      "received_at": "2026-11-11T18:42:00.000Z",
+      "record_type": "message",
+      "sent_at": null,
+      "subject": null,
+      "tags": [],
+      "text": "C",
+      "to": [
+        {
+          "carrier": "phonybox",
+          "line_type": "Long Code",
+          "phone_number": "+16285550100",
+          "status": "webhook_delivered"
+        }
+      ],
+      "type": "SMS",
+      "valid_until": null,
+      "webhook_failover_url": null,
+      "webhook_url": "http://localhost:3000/webhooks/telnyx/messaging"
+    },
+    "record_type": "event"
+  },
+  "meta": {
+    "attempt": 1,
+    "delivered_to": "http://localhost:3000/webhooks/telnyx/messaging"
+  }
+}

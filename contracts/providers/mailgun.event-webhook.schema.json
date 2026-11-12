@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "mailgun.event-webhook.schema.json",
+  "title": "Mailgun: event webhook body (delivered, permanent_fail, \u2026)",
+  "type": "object",
+  "required": [
+    "signature",
+    "event-data"
+  ],
+  "properties": {
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "timestamp",
+        "token",
+        "signature"
+      ],
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "pattern": "^\\d{10}$"
+        },
+        "token": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{50}$"
+        },
+        "signature": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "event-data": {
+      "type": "object",
+      "required": [
+        "event",
+        "id",
+        "timestamp",
+        "log-level",
+        "recipient",
+        "recipient-domain",
+        "tags",
+        "user-variables",
+        "envelope",
+        "message",
+        "flags"
+      ],
+      "properties": {
+        "event": {
+          "enum": [
+            "accepted",
+            "delivered",
+            "failed",
+            "opened",
+            "clicked",
+            "unsubscribed",
+            "complained",
+            "stored"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 10
+        },
+        "timestamp": {
+          "type": "number"
+        },
+        "log-level": {
+          "enum": [
+            "info",
+            "warn",
+            "error"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "permanent",
+            "temporary"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "recipient": {
+          "type": "string",
+          "format": "email"
+        },
+        "recipient-domain": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "user-variables": {
+          "type": "object"
+        },
+        "flags": {
+          "type": "object"
+        },
+        "envelope": {
+          "type": "object",
+          "required": [
+            "sender",
+            "targets",
+            "transport"
+          ]
+        },
+        "message": {
+          "type": "object",
+          "required": [
+            "headers",
+            "attachments",
+            "size"
+          ],
+          "properties": {
+            "headers": {
+              "type": "object",
+              "required": [
+                "message-id",
+                "from",
+                "to",
+                "subject"
+              ]
+            },
+            "attachments": {
+              "type": "array"
+            },
+            "size": {
+              "type": "integer"
+            }
+          }
+        },
+        "delivery-status": {
+          "type": "object",
+          "required": [
+            "code",
+            "message"
+          ],
+          "properties": {
+            "code": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "event": {
+                "const": "failed"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "severity",
+              "reason",
+              "delivery-status"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event": {
+                "const": "delivered"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "delivery-status"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

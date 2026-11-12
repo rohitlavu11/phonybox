@@ -1,0 +1,38 @@
+name: Adapter request
+description: Ask for a new provider (Twilio, SendGrid, Postmark, ...) or a missing endpoint on an existing one.
+labels: [adapter]
+body:
+  - type: input
+    id: provider
+    attributes:
+      label: Provider
+      placeholder: Twilio
+    validations:
+      required: true
+  - type: textarea
+    id: endpoints
+    attributes:
+      label: Endpoints and webhooks your app uses
+      description: The API calls your app makes and the webhooks it handles. Links to the provider's docs help.
+      placeholder: |
+        POST /2010-04-01/Accounts/{sid}/Messages.json
+        Status callback (MessageStatus)
+        Inbound message webhook, X-Twilio-Signature
+    validations:
+      required: true
+  - type: input
+    id: sdk
+    attributes:
+      label: SDK and language
+      placeholder: twilio-node 5.x
+  - type: textarea
+    id: why
+    attributes:
+      label: What you're testing
+      description: For example, "a support agent that replies to texts", "password reset email".
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contributing
+      options:
+        - label: I'd like to build this adapter (see the Build an adapter guide)

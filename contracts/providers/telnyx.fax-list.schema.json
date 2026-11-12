@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "telnyx.fax-list.schema.json",
+  "title": "Telnyx: GET /v2/faxes",
+  "type": "object",
+  "required": [
+    "data",
+    "meta"
+  ],
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "$ref": "telnyx.fax.schema.json"
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": [
+        "page_number",
+        "page_size",
+        "total_pages",
+        "total_results"
+      ]
+    }
+  }
+}

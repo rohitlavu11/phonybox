@@ -1,0 +1,50 @@
+{
+  "event-data": {
+    "campaigns": [],
+    "delivery-status": {
+      "attempt-no": 1,
+      "certificate-verified": true,
+      "code": 250,
+      "description": "",
+      "message": "OK",
+      "mx-host": "inbox.test",
+      "session-seconds": 0.05,
+      "tls": true
+    },
+    "envelope": {
+      "sender": "noreply@mg.acme.test",
+      "sending-ip": "127.0.0.1",
+      "targets": "riley@inbox.test",
+      "transport": "smtp"
+    },
+    "event": "delivered",
+    "flags": {
+      "is-authenticated": true,
+      "is-routed": false,
+      "is-system-test": false,
+      "is-test-mode": false
+    },
+    "id": "f0fa7b936d4ad021e758dd",
+    "log-level": "info",
+    "message": {
+      "attachments": [],
+      "headers": {
+        "from": "Acme <noreply@mg.acme.test>",
+        "message-id": "20261111184200.d6b5915c46057bcb@mg.acme.test",
+        "subject": "Confirm your email",
+        "to": "riley@inbox.test"
+      },
+      "size": 19
+    },
+    "recipient": "riley@inbox.test",
+    "recipient-domain": "inbox.test",
+    "tags": [],
+    "timestamp": 1794422520.5,
+    "user-variables": {}
+  },
+  "signature": {
+    "signature": "fdcaaeb1e37899c55164b08fbc51c96ae28aa31df10b708b1b38779b00bba501",
+    "timestamp": "1794422520",
+    "token": "492ab00bbe71db09cc80c473346ab2119a8573638cf8c433e3"
+  }
+}

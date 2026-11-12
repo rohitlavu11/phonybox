@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "mailgun.route-forward.schema.json",
+  "title": "Mailgun: route forward() multipart fields",
+  "type": "object",
+  "required": [
+    "recipient",
+    "sender",
+    "from",
+    "subject",
+    "body-plain",
+    "stripped-text",
+    "attachment-count",
+    "message-headers",
+    "timestamp",
+    "token",
+    "signature"
+  ],
+  "properties": {
+    "recipient": {
+      "type": "string",
+      "format": "email"
+    },
+    "sender": {
+      "type": "string",
+      "format": "email"
+    },
+    "attachment-count": {
+      "type": "string",
+      "pattern": "^\\d+$"
+    },
+    "message-headers": {
+      "type": "string",
+      "contentMediaType": "application/json"
+    },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^\\d{10}$"
+    },
+    "token": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{50}$"
+    },
+    "signature": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "telnyx.event.schema.json",
+  "title": "Telnyx: webhook envelope",
+  "type": "object",
+  "required": [
+    "data",
+    "meta"
+  ],
+  "properties": {
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_type",
+        "id",
+        "occurred_at",
+        "payload",
+        "record_type"
+      ],
+      "properties": {
+        "event_type": {
+          "type": "string",
+          "pattern": "^(message|fax)\\.[a-z_.]+$"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "payload": {
+          "type": "object"
+        },
+        "record_type": {
+          "const": "event"
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": [
+        "attempt",
+        "delivered_to"
+      ],
+      "properties": {
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "delivered_to": {
+          "type": "string",
+          "pattern": "^https?://"
+        }
+      }
+    }
+  }
+}

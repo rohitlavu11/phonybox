@@ -1,0 +1,3184 @@
+{
+  "components": {
+    "schemas": {
+      "AdapterPatch": {
+        "properties": {
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "values": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            },
+            "title": "Values",
+            "type": "object"
+          }
+        },
+        "title": "AdapterPatch",
+        "type": "object"
+      },
+      "AdapterState": {
+        "properties": {
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "values": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            },
+            "title": "Values",
+            "type": "object"
+          }
+        },
+        "required": [
+          "enabled",
+          "values"
+        ],
+        "title": "AdapterState",
+        "type": "object"
+      },
+      "Address": {
+        "properties": {
+          "address": {
+            "title": "Address",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "address"
+        ],
+        "title": "Address",
+        "type": "object"
+      },
+      "ApiRequest": {
+        "properties": {
+          "adapterId": {
+            "title": "Adapterid",
+            "type": "string"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string"
+          },
+          "durationMs": {
+            "title": "Durationms",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "method": {
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "PATCH",
+              "DELETE"
+            ],
+            "title": "Method",
+            "type": "string"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "relatedId": {
+            "title": "Relatedid",
+            "type": "string"
+          },
+          "requestBody": {
+            "title": "Requestbody",
+            "type": "string"
+          },
+          "responseBody": {
+            "title": "Responsebody",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "adapterId",
+          "method",
+          "path",
+          "status",
+          "durationMs",
+          "createdAt"
+        ],
+        "title": "ApiRequest",
+        "type": "object"
+      },
+      "Attachment": {
+        "properties": {
+          "contentType": {
+            "title": "Contenttype",
+            "type": "string"
+          },
+          "filename": {
+            "title": "Filename",
+            "type": "string"
+          },
+          "size": {
+            "title": "Size",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "filename",
+          "contentType",
+          "size"
+        ],
+        "title": "Attachment",
+        "type": "object"
+      },
+      "BulkRequest": {
+        "properties": {
+          "except": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Except",
+            "type": "array"
+          },
+          "ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Ids",
+            "type": "array"
+          },
+          "op": {
+            "enum": [
+              "delete",
+              "clear",
+              "read",
+              "pin",
+              "unpin"
+            ],
+            "title": "Op",
+            "type": "string"
+          },
+          "query": {
+            "$ref": "#/components/schemas/InboxQuery",
+            "title": "Query"
+          }
+        },
+        "required": [
+          "op"
+        ],
+        "title": "BulkRequest",
+        "type": "object"
+      },
+      "BulkResult": {
+        "properties": {
+          "affected": {
+            "title": "Affected",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "affected"
+        ],
+        "title": "BulkResult",
+        "type": "object"
+      },
+      "ChannelStats": {
+        "properties": {
+          "channel": {
+            "enum": [
+              "email",
+              "sms",
+              "fax"
+            ],
+            "title": "Channel",
+            "type": "string"
+          },
+          "inboxes": {
+            "title": "Inboxes",
+            "type": "integer"
+          },
+          "items": {
+            "title": "Items",
+            "type": "integer"
+          },
+          "unread": {
+            "title": "Unread",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "channel",
+          "inboxes",
+          "unread",
+          "items"
+        ],
+        "title": "ChannelStats",
+        "type": "object"
+      },
+      "Conversation": {
+        "properties": {
+          "appNumber": {
+            "title": "Appnumber",
+            "type": "string"
+          },
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "inboxAddress": {
+            "title": "Inboxaddress",
+            "type": "string"
+          },
+          "inboxId": {
+            "title": "Inboxid",
+            "type": "string"
+          },
+          "inboxLabel": {
+            "title": "Inboxlabel",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "last": {
+            "$ref": "#/components/schemas/SmsMessage"
+          },
+          "unread": {
+            "title": "Unread",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "key",
+          "inboxId",
+          "inboxAddress",
+          "appNumber",
+          "last",
+          "count",
+          "unread"
+        ],
+        "title": "Conversation",
+        "type": "object"
+      },
+      "ConversationPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Conversation"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "nextCursor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextcursor"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "nextCursor"
+        ],
+        "title": "ConversationPage",
+        "type": "object"
+      },
+      "Count": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "count"
+        ],
+        "title": "Count",
+        "type": "object"
+      },
+      "EmailMessage": {
+        "properties": {
+          "adapterId": {
+            "title": "Adapterid",
+            "type": "string"
+          },
+          "attachments": {
+            "items": {
+              "$ref": "#/components/schemas/Attachment"
+            },
+            "title": "Attachments",
+            "type": "array"
+          },
+          "cc": {
+            "items": {
+              "$ref": "#/components/schemas/Address"
+            },
+            "title": "Cc",
+            "type": "array"
+          },
+          "channel": {
+            "const": "email",
+            "title": "Channel",
+            "type": "string"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string"
+          },
+          "direction": {
+            "enum": [
+              "outbound",
+              "inbound"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "from": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "headers": {
+            "items": {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "type": "array"
+            },
+            "title": "Headers",
+            "type": "array"
+          },
+          "html": {
+            "title": "Html",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "inboxId": {
+            "title": "Inboxid",
+            "type": "string"
+          },
+          "messageId": {
+            "title": "Messageid",
+            "type": "string"
+          },
+          "read": {
+            "title": "Read",
+            "type": "boolean"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "sending",
+              "delivered",
+              "failed",
+              "bounced",
+              "received"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "to": {
+            "items": {
+              "$ref": "#/components/schemas/Address"
+            },
+            "title": "To",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "channel",
+          "inboxId",
+          "adapterId",
+          "direction",
+          "messageId",
+          "from",
+          "to",
+          "subject",
+          "text",
+          "attachments",
+          "headers",
+          "tags",
+          "status",
+          "read",
+          "createdAt"
+        ],
+        "title": "EmailMessage",
+        "type": "object"
+      },
+      "Extracted": {
+        "properties": {
+          "codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Codes",
+            "type": "array"
+          },
+          "links": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Links",
+            "type": "array"
+          }
+        },
+        "required": [
+          "codes",
+          "links"
+        ],
+        "title": "Extracted",
+        "type": "object"
+      },
+      "FaxDocument": {
+        "properties": {
+          "adapterId": {
+            "title": "Adapterid",
+            "type": "string"
+          },
+          "appNumber": {
+            "title": "Appnumber",
+            "type": "string"
+          },
+          "channel": {
+            "const": "fax",
+            "title": "Channel",
+            "type": "string"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string"
+          },
+          "direction": {
+            "enum": [
+              "outbound",
+              "inbound"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/FaxEvent"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "failureReason": {
+            "title": "Failurereason",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "inboxId": {
+            "title": "Inboxid",
+            "type": "string"
+          },
+          "pages": {
+            "title": "Pages",
+            "type": "integer"
+          },
+          "peerNumber": {
+            "title": "Peernumber",
+            "type": "string"
+          },
+          "providerId": {
+            "title": "Providerid",
+            "type": "string"
+          },
+          "quality": {
+            "enum": [
+              "normal",
+              "high",
+              "very_high"
+            ],
+            "title": "Quality",
+            "type": "string"
+          },
+          "read": {
+            "title": "Read",
+            "type": "boolean"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "sending",
+              "delivered",
+              "failed",
+              "bounced",
+              "received"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "channel",
+          "inboxId",
+          "adapterId",
+          "direction",
+          "providerId",
+          "appNumber",
+          "peerNumber",
+          "title",
+          "pages",
+          "quality",
+          "status",
+          "events",
+          "read",
+          "createdAt"
+        ],
+        "title": "FaxDocument",
+        "type": "object"
+      },
+      "FaxEvent": {
+        "properties": {
+          "at": {
+            "title": "At",
+            "type": "string"
+          },
+          "event": {
+            "title": "Event",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event",
+          "at"
+        ],
+        "title": "FaxEvent",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "Health": {
+        "properties": {
+          "dataset": {
+            "enum": [
+              "empty",
+              "small",
+              "large"
+            ],
+            "title": "Dataset",
+            "type": "string"
+          },
+          "ok": {
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "ports": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Ports",
+            "type": "object"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ok",
+          "version",
+          "dataset",
+          "ports"
+        ],
+        "title": "Health",
+        "type": "object"
+      },
+      "InboxPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/InboxSummary"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "nextCursor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextcursor"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "nextCursor"
+        ],
+        "title": "InboxPage",
+        "type": "object"
+      },
+      "InboxQuery": {
+        "properties": {
+          "channel": {
+            "enum": [
+              "email",
+              "sms",
+              "fax"
+            ],
+            "title": "Channel",
+            "type": "string"
+          },
+          "filter": {
+            "default": "all",
+            "enum": [
+              "all",
+              "unread",
+              "pinned",
+              "failing",
+              "idle"
+            ],
+            "title": "Filter",
+            "type": "string"
+          },
+          "q": {
+            "title": "Q",
+            "type": "string"
+          },
+          "sort": {
+            "default": "activity",
+            "enum": [
+              "activity",
+              "unread",
+              "name",
+              "created"
+            ],
+            "title": "Sort",
+            "type": "string"
+          }
+        },
+        "title": "InboxQuery",
+        "type": "object"
+      },
+      "InboxSummary": {
+        "properties": {
+          "adapterId": {
+            "title": "Adapterid",
+            "type": "string"
+          },
+          "address": {
+            "title": "Address",
+            "type": "string"
+          },
+          "catchAll": {
+            "default": false,
+            "title": "Catchall",
+            "type": "boolean"
+          },
+          "channel": {
+            "enum": [
+              "email",
+              "sms",
+              "fax"
+            ],
+            "title": "Channel",
+            "type": "string"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string"
+          },
+          "createdBy": {
+            "enum": [
+              "seed",
+              "ui",
+              "agent",
+              "auto"
+            ],
+            "title": "Createdby",
+            "type": "string"
+          },
+          "failing": {
+            "title": "Failing",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "lastActivityAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastactivityat"
+          },
+          "messageCount": {
+            "title": "Messagecount",
+            "type": "integer"
+          },
+          "pinned": {
+            "default": false,
+            "title": "Pinned",
+            "type": "boolean"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          },
+          "unreadCount": {
+            "title": "Unreadcount",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "channel",
+          "address",
+          "adapterId",
+          "catchAll",
+          "tags",
+          "pinned",
+          "createdBy",
+          "createdAt",
+          "messageCount",
+          "unreadCount",
+          "lastActivityAt",
+          "failing"
+        ],
+        "title": "InboxSummary",
+        "type": "object"
+      },
+      "ItemPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "email": "#/components/schemas/EmailMessage",
+                  "fax": "#/components/schemas/FaxDocument",
+                  "sms": "#/components/schemas/SmsMessage"
+                },
+                "propertyName": "channel"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/EmailMessage"
+                },
+                {
+                  "$ref": "#/components/schemas/SmsMessage"
+                },
+                {
+                  "$ref": "#/components/schemas/FaxDocument"
+                }
+              ]
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "nextCursor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextcursor"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "nextCursor"
+        ],
+        "title": "ItemPage",
+        "type": "object"
+      },
+      "NewInbox": {
+        "properties": {
+          "adapterId": {
+            "title": "Adapterid",
+            "type": "string"
+          },
+          "address": {
+            "title": "Address",
+            "type": "string"
+          },
+          "channel": {
+            "enum": [
+              "email",
+              "sms",
+              "fax"
+            ],
+            "title": "Channel",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          }
+        },
+        "required": [
+          "channel"
+        ],
+        "title": "NewInbox",
+        "type": "object"
+      },
+      "RequestPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ApiRequest"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "nextCursor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextcursor"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "nextCursor"
+        ],
+        "title": "RequestPage",
+        "type": "object"
+      },
+      "ResetRequest": {
+        "properties": {
+          "dataset": {
+            "enum": [
+              "empty",
+              "small",
+              "large"
+            ],
+            "title": "Dataset",
+            "type": "string"
+          }
+        },
+        "title": "ResetRequest",
+        "type": "object"
+      },
+      "SendToApp": {
+        "description": "Body for POST /api/inboxes/:id/send. Fields used depend on the inbox's channel.",
+        "properties": {
+          "appNumber": {
+            "title": "Appnumber",
+            "type": "string"
+          },
+          "body": {
+            "title": "Body",
+            "type": "string"
+          },
+          "html": {
+            "title": "Html",
+            "type": "string"
+          },
+          "pages": {
+            "title": "Pages",
+            "type": "integer"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "to": {
+            "title": "To",
+            "type": "string"
+          }
+        },
+        "title": "SendToApp",
+        "type": "object"
+      },
+      "SetRead": {
+        "properties": {
+          "ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Ids",
+            "type": "array"
+          },
+          "read": {
+            "title": "Read",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ids",
+          "read"
+        ],
+        "title": "SetRead",
+        "type": "object"
+      },
+      "SmsMessage": {
+        "properties": {
+          "adapterId": {
+            "title": "Adapterid",
+            "type": "string"
+          },
+          "appNumber": {
+            "title": "Appnumber",
+            "type": "string"
+          },
+          "body": {
+            "title": "Body",
+            "type": "string"
+          },
+          "channel": {
+            "const": "sms",
+            "title": "Channel",
+            "type": "string"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string"
+          },
+          "direction": {
+            "enum": [
+              "outbound",
+              "inbound"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "inboxId": {
+            "title": "Inboxid",
+            "type": "string"
+          },
+          "media": {
+            "items": {
+              "$ref": "#/components/schemas/Attachment"
+            },
+            "title": "Media",
+            "type": "array"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "parts": {
+            "title": "Parts",
+            "type": "integer"
+          },
+          "peerNumber": {
+            "title": "Peernumber",
+            "type": "string"
+          },
+          "providerId": {
+            "title": "Providerid",
+            "type": "string"
+          },
+          "read": {
+            "title": "Read",
+            "type": "boolean"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "sending",
+              "delivered",
+              "failed",
+              "bounced",
+              "received"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "channel",
+          "inboxId",
+          "adapterId",
+          "direction",
+          "providerId",
+          "appNumber",
+          "peerNumber",
+          "body",
+          "media",
+          "parts",
+          "status",
+          "read",
+          "createdAt"
+        ],
+        "title": "SmsMessage",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "WaitResult": {
+        "properties": {
+          "extract": {
+            "$ref": "#/components/schemas/Extracted"
+          },
+          "item": {
+            "discriminator": {
+              "mapping": {
+                "email": "#/components/schemas/EmailMessage",
+                "fax": "#/components/schemas/FaxDocument",
+                "sms": "#/components/schemas/SmsMessage"
+              },
+              "propertyName": "channel"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/EmailMessage"
+              },
+              {
+                "$ref": "#/components/schemas/SmsMessage"
+              },
+              {
+                "$ref": "#/components/schemas/FaxDocument"
+              }
+            ],
+            "title": "Item"
+          }
+        },
+        "required": [
+          "item",
+          "extract"
+        ],
+        "title": "WaitResult",
+        "type": "object"
+      },
+      "WebhookDelivery": {
+        "properties": {
+          "adapterId": {
+            "title": "Adapterid",
+            "type": "string"
+          },
+          "attempt": {
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "channel": {
+            "enum": [
+              "email",
+              "sms",
+              "fax"
+            ],
+            "title": "Channel",
+            "type": "string"
+          },
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string"
+          },
+          "durationMs": {
+            "title": "Durationms",
+            "type": "integer"
+          },
+          "error": {
+            "title": "Error",
+            "type": "string"
+          },
+          "event": {
+            "title": "Event",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "maxAttempts": {
+            "title": "Maxattempts",
+            "type": "integer"
+          },
+          "relatedId": {
+            "title": "Relatedid",
+            "type": "string"
+          },
+          "requestBody": {
+            "title": "Requestbody",
+            "type": "string"
+          },
+          "requestHeaders": {
+            "items": {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "type": "array"
+            },
+            "title": "Requestheaders",
+            "type": "array"
+          },
+          "responseBody": {
+            "title": "Responsebody",
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "adapterId",
+          "channel",
+          "event",
+          "url",
+          "status",
+          "durationMs",
+          "attempt",
+          "maxAttempts",
+          "createdAt",
+          "requestHeaders",
+          "requestBody"
+        ],
+        "title": "WebhookDelivery",
+        "type": "object"
+      },
+      "WebhookPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/WebhookDelivery"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "nextCursor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextcursor"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "nextCursor"
+        ],
+        "title": "WebhookPage",
+        "type": "object"
+      },
+      "WebhookTarget": {
+        "properties": {
+          "adapterId": {
+            "title": "Adapterid",
+            "type": "string"
+          },
+          "failed": {
+            "title": "Failed",
+            "type": "integer"
+          },
+          "lastStatus": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Laststatus"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "adapterId",
+          "total",
+          "failed",
+          "lastStatus"
+        ],
+        "title": "WebhookTarget",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Inboxes, captured messages, webhook and API logs. Used by the inspector UI and by agents.",
+    "title": "phonybox control API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/adapters": {
+      "get": {
+        "operationId": "adapters_api_adapters_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/AdapterState"
+                  },
+                  "title": "Response Adapters Api Adapters Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Adapters",
+        "tags": [
+          "adapters"
+        ]
+      }
+    },
+    "/api/adapters/{adapter_id}": {
+      "patch": {
+        "operationId": "patch_adapter_api_adapters__adapter_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "adapter_id",
+            "required": true,
+            "schema": {
+              "title": "Adapter Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdapterPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdapterState"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Patch Adapter",
+        "tags": [
+          "adapters"
+        ]
+      }
+    },
+    "/api/events": {
+      "get": {
+        "description": "Server-sent events. `change` events carry the topics that changed: inboxes, items, webhooks, requests, adapters.",
+        "operationId": "events_api_events_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Events",
+        "tags": [
+          "meta"
+        ]
+      }
+    },
+    "/api/health": {
+      "get": {
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "meta"
+        ]
+      }
+    },
+    "/api/inboxes": {
+      "get": {
+        "operationId": "list_inboxes_api_inboxes_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "channel",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "email",
+                    "sms",
+                    "fax"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Channel"
+            }
+          },
+          {
+            "description": "Matches address and label. `tag:run:42` matches tags by prefix.",
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Matches address and label. `tag:run:42` matches tags by prefix.",
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "default": "all",
+              "enum": [
+                "all",
+                "unread",
+                "pinned",
+                "failing",
+                "idle"
+              ],
+              "title": "Filter",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "activity",
+              "enum": [
+                "activity",
+                "unread",
+                "name",
+                "created"
+              ],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Offset from a previous page's nextCursor.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Offset from a previous page's nextCursor.",
+              "minimum": 0,
+              "title": "Cursor",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InboxPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Inboxes",
+        "tags": [
+          "inboxes"
+        ]
+      },
+      "post": {
+        "description": "One object creates one inbox (409 if the address exists). An array creates many, skipping existing addresses.",
+        "operationId": "create_inboxes_api_inboxes_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/NewInbox"
+                  },
+                  {
+                    "items": {
+                      "$ref": "#/components/schemas/NewInbox"
+                    },
+                    "type": "array"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/InboxSummary"
+                    },
+                    {
+                      "items": {
+                        "$ref": "#/components/schemas/InboxSummary"
+                      },
+                      "type": "array"
+                    }
+                  ],
+                  "title": "Response Create Inboxes Api Inboxes Post"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Inboxes",
+        "tags": [
+          "inboxes"
+        ]
+      }
+    },
+    "/api/inboxes/bulk": {
+      "post": {
+        "description": "Apply an operation to explicit ids, or to every inbox matching a query minus `except`.",
+        "operationId": "bulk_api_inboxes_bulk_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Bulk",
+        "tags": [
+          "inboxes"
+        ]
+      }
+    },
+    "/api/inboxes/{inbox}": {
+      "delete": {
+        "operationId": "delete_inbox_api_inboxes__inbox__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inbox",
+            "required": true,
+            "schema": {
+              "title": "Inbox",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Inbox",
+        "tags": [
+          "inboxes"
+        ]
+      },
+      "get": {
+        "description": "`inbox` is an id or an address (email or E.164 number).",
+        "operationId": "get_inbox_api_inboxes__inbox__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inbox",
+            "required": true,
+            "schema": {
+              "title": "Inbox",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InboxSummary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Inbox",
+        "tags": [
+          "inboxes"
+        ]
+      }
+    },
+    "/api/inboxes/{inbox}/messages": {
+      "get": {
+        "operationId": "inbox_messages_api_inboxes__inbox__messages_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inbox",
+            "required": true,
+            "schema": {
+              "title": "Inbox",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "direction",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "outbound",
+                    "inbound"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Direction"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "since",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Since"
+            }
+          },
+          {
+            "description": "Offset from a previous page's nextCursor.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Offset from a previous page's nextCursor.",
+              "minimum": 0,
+              "title": "Cursor",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Inbox Messages",
+        "tags": [
+          "agents"
+        ]
+      }
+    },
+    "/api/inboxes/{inbox}/send": {
+      "post": {
+        "description": "Send from this inbox to your app. Delivered as the inbox adapter's inbound webhook.",
+        "operationId": "send_to_app_api_inboxes__inbox__send_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inbox",
+            "required": true,
+            "schema": {
+              "title": "Inbox",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendToApp"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "discriminator": {
+                    "mapping": {
+                      "email": "#/components/schemas/EmailMessage",
+                      "fax": "#/components/schemas/FaxDocument",
+                      "sms": "#/components/schemas/SmsMessage"
+                    },
+                    "propertyName": "channel"
+                  },
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/EmailMessage"
+                    },
+                    {
+                      "$ref": "#/components/schemas/SmsMessage"
+                    },
+                    {
+                      "$ref": "#/components/schemas/FaxDocument"
+                    }
+                  ],
+                  "title": "Response Send To App Api Inboxes  Inbox  Send Post"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Send To App",
+        "tags": [
+          "agents"
+        ]
+      }
+    },
+    "/api/inboxes/{inbox}/wait": {
+      "get": {
+        "description": "Long-poll until the inbox has a matching item, then return the newest one with its codes and links.",
+        "operationId": "wait_api_inboxes__inbox__wait_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inbox",
+            "required": true,
+            "schema": {
+              "title": "Inbox",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "timeout",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "maximum": 300,
+              "minimum": 0,
+              "title": "Timeout",
+              "type": "number"
+            }
+          },
+          {
+            "description": "Case-insensitive substring of the subject (email) or body (sms) or title (fax).",
+            "in": "query",
+            "name": "subject",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Case-insensitive substring of the subject (email) or body (sms) or title (fax).",
+              "title": "Subject"
+            }
+          },
+          {
+            "in": "query",
+            "name": "direction",
+            "required": false,
+            "schema": {
+              "default": "outbound",
+              "enum": [
+                "outbound",
+                "inbound"
+              ],
+              "title": "Direction",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only items created after this ISO timestamp.",
+            "in": "query",
+            "name": "since",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only items created after this ISO timestamp.",
+              "title": "Since"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WaitResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "408": {
+            "description": "Nothing matched before the timeout"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Wait",
+        "tags": [
+          "agents"
+        ]
+      }
+    },
+    "/api/items": {
+      "get": {
+        "operationId": "list_items_api_items_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "channel",
+            "required": true,
+            "schema": {
+              "enum": [
+                "email",
+                "sms",
+                "fax"
+              ],
+              "title": "Channel",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Inbox id; omit for every inbox on the channel.",
+            "in": "query",
+            "name": "inbox",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Inbox id; omit for every inbox on the channel.",
+              "title": "Inbox"
+            }
+          },
+          {
+            "in": "query",
+            "name": "direction",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "outbound",
+                    "inbound"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Direction"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "description": "Offset from a previous page's nextCursor.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Offset from a previous page's nextCursor.",
+              "minimum": 0,
+              "title": "Cursor",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Items",
+        "tags": [
+          "items"
+        ]
+      },
+      "patch": {
+        "operationId": "set_read_api_items_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetRead"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Read",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/api/items/{item_id}": {
+      "delete": {
+        "operationId": "delete_item_api_items__item_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Item",
+        "tags": [
+          "items"
+        ]
+      },
+      "get": {
+        "operationId": "get_item_api_items__item_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "discriminator": {
+                    "mapping": {
+                      "email": "#/components/schemas/EmailMessage",
+                      "fax": "#/components/schemas/FaxDocument",
+                      "sms": "#/components/schemas/SmsMessage"
+                    },
+                    "propertyName": "channel"
+                  },
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/EmailMessage"
+                    },
+                    {
+                      "$ref": "#/components/schemas/SmsMessage"
+                    },
+                    {
+                      "$ref": "#/components/schemas/FaxDocument"
+                    }
+                  ],
+                  "title": "Response Get Item Api Items  Item Id  Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Item",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/api/items/{item_id}/attachments/{idx}": {
+      "get": {
+        "operationId": "attachment_api_items__item_id__attachments__idx__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "idx",
+            "required": true,
+            "schema": {
+              "title": "Idx",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Attachment",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/api/items/{item_id}/extract": {
+      "get": {
+        "operationId": "item_extract_api_items__item_id__extract_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Extracted"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Item Extract",
+        "tags": [
+          "agents"
+        ]
+      }
+    },
+    "/api/items/{item_id}/request": {
+      "get": {
+        "operationId": "item_request_api_items__item_id__request_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiRequest"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Item Request Api Items  Item Id  Request Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Item Request",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/api/items/{item_id}/webhooks": {
+      "get": {
+        "operationId": "item_webhooks_api_items__item_id__webhooks_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/WebhookDelivery"
+                  },
+                  "title": "Response Item Webhooks Api Items  Item Id  Webhooks Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Item Webhooks",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/api/requests": {
+      "get": {
+        "operationId": "list_requests_api_requests_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "adapter",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Adapter"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "description": "Offset from a previous page's nextCursor.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Offset from a previous page's nextCursor.",
+              "minimum": 0,
+              "title": "Cursor",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Requests",
+        "tags": [
+          "logs"
+        ]
+      }
+    },
+    "/api/requests/{request_id}": {
+      "get": {
+        "operationId": "get_request_api_requests__request_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiRequest"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Request",
+        "tags": [
+          "logs"
+        ]
+      }
+    },
+    "/api/reset": {
+      "post": {
+        "operationId": "reset_api_reset_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ResetRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reset",
+        "tags": [
+          "meta"
+        ]
+      }
+    },
+    "/api/sms/conversations": {
+      "get": {
+        "operationId": "conversations_api_sms_conversations_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "inbox",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Inbox"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "description": "Offset from a previous page's nextCursor.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Offset from a previous page's nextCursor.",
+              "minimum": 0,
+              "title": "Cursor",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Conversations",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/api/sms/conversations/{inbox}/{app_number}": {
+      "get": {
+        "operationId": "thread_api_sms_conversations__inbox___app_number__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "inbox",
+            "required": true,
+            "schema": {
+              "title": "Inbox",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "app_number",
+            "required": true,
+            "schema": {
+              "title": "App Number",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SmsMessage"
+                  },
+                  "title": "Response Thread Api Sms Conversations  Inbox   App Number  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Thread",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/api/stats": {
+      "get": {
+        "operationId": "stats_api_stats_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ChannelStats"
+                  },
+                  "title": "Response Stats Api Stats Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Stats",
+        "tags": [
+          "inboxes"
+        ]
+      }
+    },
+    "/api/webhooks": {
+      "get": {
+        "operationId": "list_webhooks_api_webhooks_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "adapter",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Adapter"
+            }
+          },
+          {
+            "in": "query",
+            "name": "failed",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Failed",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "description": "Offset from a previous page's nextCursor.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Offset from a previous page's nextCursor.",
+              "minimum": 0,
+              "title": "Cursor",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Webhooks",
+        "tags": [
+          "logs"
+        ]
+      }
+    },
+    "/api/webhooks/failing": {
+      "get": {
+        "operationId": "failing_api_webhooks_failing_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Count"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Failing",
+        "tags": [
+          "logs"
+        ]
+      }
+    },
+    "/api/webhooks/latest": {
+      "get": {
+        "operationId": "latest_webhook_api_webhooks_latest_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/WebhookDelivery"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Latest Webhook Api Webhooks Latest Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Latest Webhook",
+        "tags": [
+          "logs"
+        ]
+      }
+    },
+    "/api/webhooks/targets": {
+      "get": {
+        "operationId": "webhook_targets_api_webhooks_targets_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/WebhookTarget"
+                  },
+                  "title": "Response Webhook Targets Api Webhooks Targets Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Webhook Targets",
+        "tags": [
+          "logs"
+        ]
+      }
+    },
+    "/api/webhooks/{webhook_id}": {
+      "get": {
+        "operationId": "get_webhook_api_webhooks__webhook_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "webhook_id",
+            "required": true,
+            "schema": {
+              "title": "Webhook Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookDelivery"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Webhook",
+        "tags": [
+          "logs"
+        ]
+      }
+    },
+    "/api/webhooks/{webhook_id}/replay": {
+      "post": {
+        "operationId": "replay_api_webhooks__webhook_id__replay_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "webhook_id",
+            "required": true,
+            "schema": {
+              "title": "Webhook Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookDelivery"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Replay",
+        "tags": [
+          "logs"
+        ]
+      }
+    }
+  }
+}

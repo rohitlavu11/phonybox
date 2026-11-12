@@ -1,0 +1,16 @@
+**/node_modules
+**/.venv
+**/dist
+**/__pycache__
+**/.pytest_cache
+**/*.log
+.git
+.github
+.gstack
+apps/docs
+apps/server/tests
+apps/server/reports
+contracts
+examples
+*.md
+!apps/web/**/*.md

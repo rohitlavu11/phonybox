@@ -1,0 +1,90 @@
+/* Same paper-and-ink palette as the inspector: warm neutrals, one vermilion signal. */
+:root {
+  --pb-signal: #e0602a;
+  --pb-ok: #2f8a5b;
+
+  --vp-font-family-base: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --vp-font-family-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --vp-c-bg: #fcfbf8;
+  --vp-c-bg-alt: #f5f3ee;
+  --vp-c-bg-soft: #f1efe9;
+  --vp-c-bg-elv: #ffffff;
+  --vp-c-text-1: #24211d;
+  --vp-c-text-2: #5d5850;
+  --vp-c-text-3: #8a847a;
+  --vp-c-divider: #e6e2da;
+  --vp-c-border: #ddd8ce;
+  --vp-c-gutter: #ebe7df;
+
+  --vp-c-brand-1: #c4501d;
+  --vp-c-brand-2: #d65a24;
+  --vp-c-brand-3: #e0602a;
+  --vp-c-brand-soft: rgba(224, 96, 42, 0.12);
+
+  --vp-code-bg: #f3f1ec;
+  --vp-code-block-bg: #f3f1ec;
+  --vp-button-brand-bg: #24211d;
+  --vp-button-brand-hover-bg: #3a3631;
+  --vp-button-brand-active-bg: #24211d;
+  --vp-button-brand-text: #fcfbf8;
+  --vp-button-brand-hover-text: #fcfbf8;
+  --vp-button-brand-border: transparent;
+  --vp-home-hero-name-color: var(--vp-c-text-1);
+  --vp-nav-logo-height: 22px;
+}
+
+.dark {
+  --vp-c-bg: #1b1916;
+  --vp-c-bg-alt: #161412;
+  --vp-c-bg-soft: #24211d;
+  --vp-c-bg-elv: #24211d;
+  --vp-c-text-1: #ece9e4;
+  --vp-c-text-2: #b5afa6;
+  --vp-c-text-3: #8a847a;
+  --vp-c-divider: #34302b;
+  --vp-c-border: #3d3832;
+  --vp-c-gutter: #12100e;
+
+  --vp-c-brand-1: #f08a5b;
+  --vp-c-brand-2: #ec7a46;
+  --vp-c-brand-3: #e0602a;
+  --vp-c-brand-soft: rgba(240, 138, 91, 0.14);
+
+  --vp-code-bg: #24211d;
+  --vp-code-block-bg: #201d1a;
+  --vp-button-brand-bg: #ece9e4;
+  --vp-button-brand-hover-bg: #ffffff;
+  --vp-button-brand-active-bg: #ece9e4;
+  --vp-button-brand-text: #1b1916;
+  --vp-button-brand-hover-text: #1b1916;
+}
+
+.VPNavBarTitle .title {
+  font-family: var(--vp-font-family-mono);
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3 {
+  letter-spacing: -0.015em;
+}
+
+.vp-doc img {
+  border-radius: 8px;
+}
+
+.vp-doc table {
+  font-size: 14px;
+}
+
+.vp-doc :not(pre) > code {
+  font-size: 0.86em;
+}
+
+::selection {
+  background: rgba(224, 96, 42, 0.25);
+}

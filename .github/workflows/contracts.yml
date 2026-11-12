@@ -1,0 +1,144 @@
+name: Contracts
+
+# Nightly: proves the emulator still matches the Mailgun and Telnyx contracts on both
+# databases, that the official SDKs (locked and latest) still work against it, and that
+# the UI's types still match the server's control API. A failure opens an issue.
+# (PRs run the same checks with locked SDKs in ci.yml.)
+on:
+  schedule:
+    - cron: "17 7 * * *" # 07:17 UTC daily
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/contracts.yml"
+
+concurrency:
+  group: contracts-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  TZ: UTC
+  UV_PYTHON: "3.13"
+
+jobs:
+  deterministic:
+    name: Deterministic contract suite (${{ matrix.db }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        db: [sqlite, postgres]
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U postgres"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+    env:
+      PHONYBOX_TEST_DATABASE_URL: ${{ matrix.db == 'postgres' && 'postgresql://postgres:postgres@localhost:5432/postgres' || '' }}
+    defaults:
+      run:
+        working-directory: apps/server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked --all-groups
+
+      # Two runs with different hash seeds: both must match the committed golden files
+      # byte for byte, so any dependence on dict/set ordering or wall-clock time fails here.
+      - name: Contracts (PYTHONHASHSEED=0)
+        run: uv run pytest -m contract -p no:cacheprovider --junitxml=reports/contracts.xml
+        env:
+          PYTHONHASHSEED: "0"
+      - name: Contracts (PYTHONHASHSEED=random)
+        run: uv run pytest -m contract -p no:cacheprovider -q
+        env:
+          PYTHONHASHSEED: random
+      - name: Golden files and OpenAPI snapshot are unchanged
+        run: git diff --exit-code -- tests/golden ../../contracts
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: contract-report-${{ matrix.db }}
+          path: apps/server/reports/
+
+  sdks:
+    name: Official SDKs (${{ matrix.versions }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        # locked: what uv.lock pins. latest: today's releases, which is how SDK drift shows up.
+        versions: [locked, latest]
+    defaults:
+      run:
+        working-directory: apps/server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked --all-groups
+      - if: matrix.versions == 'latest'
+        run: uv pip install --upgrade telnyx mailgun pynacl
+      - name: SDK versions
+        run: uv run --no-sync python -c "import telnyx, importlib.metadata as m; print(f'telnyx {telnyx.__version__}, mailgun {m.version(\"mailgun\")}')" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Live sockets + SDKs
+        run: uv run --no-sync pytest -m live -p no:cacheprovider --junitxml=reports/sdk-${{ matrix.versions }}.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sdk-report-${{ matrix.versions }}
+          path: apps/server/reports/
+
+  ui-contract:
+    name: UI types match the control API
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Regenerate types from contracts/control-api.openapi.json and type-check
+        run: pnpm --filter @phonybox/web contract
+      - name: Generated types are committed
+        run: git diff --exit-code -- apps/web/src/api/schema.gen.ts
+      - run: pnpm --filter @phonybox/web lint
+      - run: pnpm --filter @phonybox/web build
+
+  report:
+    name: Open an issue when the nightly run fails
+    needs: [deterministic, sdks, ui-contract]
+    if: failure() && github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Nightly contract run failed"
+          existing=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --search "$title in:title" --json number -q '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" -R "$GITHUB_REPOSITORY" --body "Failed again: $RUN"
+          else
+            gh issue create -R "$GITHUB_REPOSITORY" --title "$title" --body "The nightly contract run failed: $RUN"
+          fi

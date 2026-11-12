@@ -1,0 +1,47 @@
+name: Bug report
+description: Phonybox behaves differently from the real provider, crashes, or the inspector misbehaves.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what Phonybox did instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      description: The smallest request or SDK call that shows it. curl is ideal.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: real
+    attributes:
+      label: What the real provider does
+      description: If this is a fidelity bug, a link to the provider's docs or a redacted real response helps a lot. Remove keys and personal data.
+  - type: dropdown
+    id: adapter
+    attributes:
+      label: Area
+      options: [Mailgun, Telnyx messaging, Telnyx fax, Webhooks, Control API, Inspector UI, Docker / install, Other]
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: From `/api/health`, `phonybox --version`, or the image tag.
+      placeholder: 0.1.0
+  - type: dropdown
+    id: db
+    attributes:
+      label: Database
+      options: [In memory (default), SQLite file, PostgreSQL]
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      render: text

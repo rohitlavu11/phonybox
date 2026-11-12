@@ -1,0 +1,20 @@
+{
+  "venvPath": "apps/server",
+  "venv": ".venv",
+  "pythonVersion": "3.13",
+  "include": [
+    "apps/server/src",
+    "apps/server/tests"
+  ],
+  "executionEnvironments": [
+    {
+      "root": "apps/server/src"
+    },
+    {
+      "root": "apps/server",
+      "extraPaths": [
+        "apps/server/src"
+      ]
+    }
+  ]
+}

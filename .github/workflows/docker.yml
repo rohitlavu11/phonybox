@@ -1,0 +1,100 @@
+name: Docker
+
+# PRs: build the image and smoke-test it. main and v* tags: also publish
+# linux/amd64 + linux/arm64 to ghcr.io/rohitlavu11/phonybox.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - apps/server/**
+      - apps/web/**
+      - pnpm-lock.yaml
+      - .github/workflows/docker.yml
+  workflow_dispatch:
+
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build for smoke test (amd64)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: phonybox:smoke
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test (SQLite and PostgreSQL)
+        run: |
+          set -euo pipefail
+          wait_healthy() {
+            for _ in $(seq 1 60); do curl -sf "localhost:$1/api/health" && return 0; sleep 1; done
+            docker logs "$2"; return 1
+          }
+          docker run -d --name pb -p 4100:4100 -p 4101:4101 phonybox:smoke
+          wait_healthy 4100 pb
+          curl -sf --user api:k localhost:4101/v3/mg.acme.test/messages \
+            -F from=noreply@mg.acme.test -F to=smoke@inbox.test -F subject=Hi -F text="code 123456"
+          got=$(curl -sf "localhost:4100/api/inboxes/smoke@inbox.test/wait?timeout=5")
+          grep -q 123456 <<<"$got"
+          page=$(curl -sf localhost:4100/)
+          grep -qi "<html" <<<"$page"
+
+          docker network create pbnet
+          docker run -d --name pg --network pbnet -e POSTGRES_PASSWORD=pg postgres:17
+          for _ in $(seq 1 60); do docker exec pg pg_isready -h 127.0.0.1 -U postgres && break; sleep 1; done
+          docker run -d --name pbpg --network pbnet -p 4200:4100 \
+            -e PHONYBOX_DB=postgresql://postgres:pg@pg:5432/postgres phonybox:smoke
+          wait_healthy 4200 pbpg
+
+      - uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,format=short
+
+      - name: Publish (amd64 + arm64)
+        if: github.event_name != 'pull_request'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

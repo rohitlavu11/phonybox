@@ -1,0 +1,20 @@
+node_modules
+dist
+.DS_Store
+*.log
+.env
+.env.local
+*.tsbuildinfo
+.gstack/
+
+# server
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+apps/server/reports
+.phonybox
+.ruff_cache
+
+# docs
+apps/docs/.vitepress/cache

@@ -1,0 +1,24 @@
+{
+  "name": "phonybox",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Local emulator for Mailgun and Telnyx (email, SMS/MMS, fax) with signed webhooks, an inspector UI and a control API for testing apps and AI agents.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rohitlavu11/phonybox.git"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "dev:mock": "pnpm --filter @phonybox/web dev:mock",
+    "build": "pnpm --filter @phonybox/web build",
+    "start": "pnpm build && pnpm --filter @phonybox/server dev",
+    "test": "pnpm --filter @phonybox/server test && pnpm --filter @phonybox/web contract",
+    "contract": "pnpm --filter @phonybox/server openapi && pnpm --filter @phonybox/web contract",
+    "typecheck": "pnpm -r typecheck",
+    "docs": "pnpm --filter @phonybox/docs docs:dev",
+    "docs:build": "pnpm --filter @phonybox/docs docs:build"
+  },
+  "packageManager": "pnpm@10.28.1"
+}
