@@ -28,3 +28,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # Stay on Node LTS and on the Python in apps/server/.python-version; move those by hand.
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
+      - dependency-name: python
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]

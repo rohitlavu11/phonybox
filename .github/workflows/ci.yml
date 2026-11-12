@@ -89,8 +89,13 @@ jobs:
         working-directory: apps/server
         run: |
           uv sync --locked --no-dev
-          uv run --no-sync phonybox --seed empty > ../../phonybox.log 2>&1 &
+          # Run from the venv, not `uv run`: a long-lived uv process holds uv's cache lock.
+          .venv/bin/phonybox --seed empty > ../../phonybox.log 2>&1 &
+          echo $! > ../../phonybox.pid
           for _ in $(seq 1 60); do curl -sf localhost:4100/api/health && exit 0; sleep 0.5; done
           cat ../../phonybox.log; exit 1
       - run: python3 examples/python/email_signup.py
       - run: node examples/node/sms_2fa.mjs
+      - name: Stop Phonybox
+        if: always()
+        run: kill "$(cat phonybox.pid)" 2>/dev/null || true
