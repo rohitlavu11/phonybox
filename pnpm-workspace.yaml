@@ -1,2 +1,10 @@
 packages:
   - "apps/*"
+
+# Security overrides for dev tooling (nothing here ships in the Docker image).
+overrides:
+  # VitePress 1.6 pins Vite 5 (and esbuild 0.21), which have dev-server advisories.
+  # Vite 6.4.6 carries the fixes and works with VitePress 1.6. Drop when VitePress 2 is stable.
+  "vitepress>vite": ^6.4.6
+  # GHSA-g3hv-75wg-m249, via ESLint and its plugins.
+  "minimatch@>=7 <11.0.1": ^11.0.1
