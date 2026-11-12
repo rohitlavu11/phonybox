@@ -355,6 +355,13 @@ def build_control_app(emu: Emulator) -> FastAPI:
 
         return StreamingResponse(stream(), media_type="text/event-stream", headers={"cache-control": "no-cache", "x-accel-buffering": "no"})
 
+    # ----------------------------------------------------------------- MCP
+
+    # /mcp: the same inboxes as tools for AI agents. Before the UI so its catch-all doesn't shadow it.
+    from . import mcp_server
+
+    app.state.mcp = mcp_server.mount(app, emu)
+
     # ------------------------------------------------------------------ UI
 
     dist = emu.cfg.ui_dist

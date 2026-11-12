@@ -532,6 +532,12 @@ ADAPTER = AdapterSpec(
     name="Mailgun",
     channels=("email",),
     port_offset=1,
+    sdk_setup=(
+        "mailgun.js: new Mailgun(formData).client({ username: 'api', key, url: '{url}' }). "
+        "Python mailgun: Client(auth=('api', key), api_url='{url}'). "
+        "Plain HTTP: POST {url}/v3/<domain>/messages with basic auth api:<any key>. "
+        "Verify webhooks with the signingKey setting (HMAC-SHA256 of timestamp + token)."
+    ),
     defaults=lambda emu: dict(DEFAULTS),
     build_app=build_app,
     send_to_app=_inbound,

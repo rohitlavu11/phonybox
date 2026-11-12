@@ -48,7 +48,7 @@ your app ◀──(signed webhooks)───────── Phonybox ◀─�
 - **Drop-in for your SDKs.** Change the base URL and nothing else. Each adapter is tested against the provider's official SDKs.
 - **Every channel in one place.** Email, SMS/MMS and fax today, with voice next. One inbox model and one UI across all of them.
 - **Real webhooks.** Signed the way each provider signs them, retried on failure, with failover URLs, a delivery log and one-click replay.
-- **Made for agents.** An inbox per run, a long-polling `wait` endpoint, OTP and link extraction, sending as the human, and cleanup by tag.
+- **Made for agents.** An [MCP server](https://rohitlavu11.github.io/phonybox/guide/mcp) so Claude Code and other agents can test your product's email and SMS flows themselves, plus a REST API with an inbox per run, a long-polling `wait`, OTP and link extraction, sending as the human, and cleanup by tag.
 - **An inspector that scales.** A mail client, an SMS thread view and a fax viewer that stay fast at thousands of inboxes. Light and dark.
 - **The hard cases on demand.** Opt-outs, bounces, busy fax lines, undeliverable numbers, your own handler returning 500.
 - **Deterministic.** An injectable clock and seeded IDs. The contract suite produces identical bytes on every run, on SQLite and PostgreSQL.
@@ -126,6 +126,16 @@ const telnyx = new Telnyx({ apiKey, baseURL: "http://localhost:4102/v2" })
 Webhooks go to `http://localhost:3000` by default, on the paths you'd configure in each provider's dashboard. Change them per adapter in the UI, or set `PHONYBOX_WEBHOOK_BASE` (in Docker, `http://host.docker.internal:3000`). Each adapter signs webhooks with a local key shown on its **Keys** tab, so your app's signature check (for example `telnyx.webhooks.unwrap()`) works unchanged.
 
 More: [Connect your app](https://rohitlavu11.github.io/phonybox/guide/connect-your-app).
+
+## Use it from Claude Code
+
+Every Phonybox serves an MCP server at `/mcp`:
+
+```sh
+claude mcp add --transport http phonybox http://localhost:4100/mcp
+```
+
+Then ask in plain words: *"Test the sign-up flow at http://localhost:3000 with a fresh Phonybox inbox: open the confirmation link from the email, check the account is verified, reply to the email and confirm my webhook accepted it."* Claude gets tools to create inboxes, wait for the messages your app sends (with codes and links already extracted), reply as the person, inspect every webhook your app received, and clean up. Other MCP clients, Cursor, and Claude Desktop over stdio are covered in the [MCP guide](https://rohitlavu11.github.io/phonybox/guide/mcp).
 
 ## Testing agents
 
@@ -208,7 +218,7 @@ flowchart LR
     adapters["Provider adapters<br/><sub>one port each: Mailgun, Telnyx, …</sub>"]
     store[("Store<br/><sub>SQLite or PostgreSQL</sub>")]
     sched["Scheduler<br/><sub>webhooks, retries, lifecycles</sub>"]
-    api["Control API<br/><sub>:4100/api, SSE</sub>"]
+    api["Control API<br/><sub>:4100/api, SSE, /mcp</sub>"]
   end
   ui["Inspector"]
   agents["Agents and tests"]
@@ -249,9 +259,9 @@ cd apps/server && uv run pytest
 - [x] Adapter model, with email (Mailgun) and SMS/MMS and fax (Telnyx)
 - [x] Signed webhooks with retries, failover and replay
 - [x] Control API for agents; inspector that scales to thousands of inboxes
+- [x] MCP server, so Claude Code and other agents can drive all of it as tools
 - [x] SQLite and PostgreSQL; Docker image; nightly contract suite
 - [ ] More providers and channels, including voice: see [Supported providers](#supported-providers)
-- [ ] MCP server: `create_inbox`, `wait_for_message`, `extract`, `send_to_app` as agent tools
 - [ ] Fault rules in the UI (latency, error rates, per-recipient)
 - [ ] Scenario files: declarative seeds and auto-replies
 

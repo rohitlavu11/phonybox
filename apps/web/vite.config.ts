@@ -4,7 +4,7 @@ import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
 // The Python server owns :4100 (control API + built UI). In development Vite
-// serves the UI on :5173 and proxies /api, including the SSE stream, to it.
+// serves the UI on :5173 and proxies /api (including the SSE stream) and /mcp to it.
 const server = process.env.PHONYBOX_URL ?? "http://127.0.0.1:4100"
 
 export default defineConfig({
@@ -16,6 +16,9 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    proxy: { "/api": { target: server, changeOrigin: false } },
+    proxy: {
+      "/api": { target: server, changeOrigin: false },
+      "/mcp": { target: server, changeOrigin: false },
+    },
   },
 })

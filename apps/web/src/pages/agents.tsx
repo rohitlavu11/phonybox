@@ -3,61 +3,118 @@ import { CodeBlock } from "@/components/bits"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-const mcpConfig = `{
-  "mcpServers": {
-    "phonybox": {
-      "command": "npx",
-      "args": ["phonybox", "mcp", "--url", "http://127.0.0.1:4100"]
-    }
-  }
-}`
+// Served by Phonybox itself (or Vite in development, which proxies /api and /mcp to it).
+const origin =
+  typeof window === "undefined"
+    ? "http://127.0.0.1:4100"
+    : window.location.origin
+const mcpUrl = `${origin}/mcp`
 
-const flow = `# 1. A fresh inbox per run, so parallel agents never read each other's mail
-INBOX=$(curl -s -X POST http://127.0.0.1:4100/api/inboxes \\
-  -d '{"channel":"email","label":"checkout-run-42"}' | jq -r .address)
+const setups: { id: string; label: string; code: string; note: string }[] = [
+  {
+    id: "claude-code",
+    label: "Claude Code",
+    code: `claude mcp add --transport http phonybox ${mcpUrl}`,
+    note: "Run in your project. Add --scope project to share it through .mcp.json.",
+  },
+  {
+    id: "json",
+    label: ".mcp.json",
+    code: JSON.stringify(
+      { mcpServers: { phonybox: { type: "http", url: mcpUrl } } },
+      null,
+      2
+    ),
+    note: "For Claude Code, Cursor and other clients that speak MCP over HTTP.",
+  },
+  {
+    id: "stdio",
+    label: "stdio",
+    code: JSON.stringify(
+      {
+        mcpServers: {
+          phonybox: {
+            command: "uvx",
+            args: [
+              "--from",
+              "git+https://github.com/rohitlavu11/phonybox#subdirectory=apps/server",
+              "phonybox",
+              "mcp",
+              "--url",
+              origin,
+            ],
+          },
+        },
+      },
+      null,
+      2
+    ),
+    note: "For clients that only launch a command, like Claude Desktop. Needs uv.",
+  },
+]
+
+const flow = `API=${origin}/api
+
+# 1. A fresh inbox per run, so parallel agents never read each other's mail
+INBOX=$(curl -s -X POST $API/inboxes -H 'content-type: application/json' \\
+  -d '{"channel":"email","tags":["run:42"]}' | jq -r .address)
 
 # 2. Sign up in your app with $INBOX (browser agent, Playwright, etc.)
 
 # 3. Block until the confirmation arrives, then take the code
-curl -s "http://127.0.0.1:4100/api/inboxes/$INBOX/wait?timeout=30&subject=Confirm" \\
-  | jq -r '.extract.codes[0]'
-# => 482913`
+curl -s "$API/inboxes/$INBOX/wait?timeout=30&subject=confirm" | jq -r '.extract.codes[0]'
+# => 482913
 
-const tools: [string, string][] = [
+# 4. Clean up the run
+curl -s -X POST $API/inboxes/bulk -H 'content-type: application/json' \\
+  -d '{"op":"delete","query":{"q":"tag:run:42"},"except":[]}'`
+
+const tools: [string[], string][] = [
   [
-    "create_inbox",
-    "New email inbox or phone number. Address is generated if you don't pass one.",
+    ["get_setup"],
+    "Provider base URLs, SDK setup, keys and webhook URLs, to check your app points here.",
   ],
   [
-    "list_messages",
-    "Messages in an inbox, newest first. Filter by direction, since, subject.",
+    ["create_inbox"],
+    "A fresh email address or phone number for a test run, tagged for cleanup.",
   ],
   [
-    "wait_for_message",
-    "Blocks until a matching message arrives or the timeout passes.",
+    ["wait_for_message"],
+    "Waits for the email, text or fax your app sends. Returns codes, and links with their link text.",
   ],
-  ["extract", "One-time codes and links from a message, same as the UI shows."],
+  [["list_messages", "read_message"], "An inbox's messages, and one in full."],
   [
-    "send_to_app",
-    "Email, text or fax your app from an inbox. Fires the inbound webhook.",
+    ["send_email_to_app", "send_sms_to_app", "send_fax_to_app"],
+    "Reply as the person. Returns how your webhook handler responded.",
   ],
   [
-    "list_webhooks",
-    "Recent deliveries to your app with status codes, for checking handlers.",
+    ["list_webhook_deliveries", "get_webhook_delivery", "replay_webhook"],
+    "Every delivery to your app, the exact signed request, and a replay after you fix a handler.",
   ],
-  ["reset", "Clear every inbox, message and log."],
+  [
+    ["list_api_requests"],
+    "What your app sent to the provider APIs, and what it got back.",
+  ],
+  [
+    ["configure_provider"],
+    "Point webhooks at your app's port, or make deliveries fail on purpose.",
+  ],
+  [
+    ["list_inboxes", "delete_inboxes"],
+    "Find inboxes, and clean up a run by tag.",
+  ],
 ]
 
 const rest: [string, string, string][] = [
   ["POST", "/api/inboxes", "Create an inbox"],
-  ["GET", "/api/inboxes/:id/messages", "List messages"],
   ["GET", "/api/inboxes/:id/wait", "Long-poll for the next message"],
-  ["GET", "/api/messages/:id", "One message, with raw source"],
-  ["GET", "/api/messages/:id/extract", "Codes and links"],
-  ["POST", "/api/inboxes/:id/send", "Send to the app (inbound)"],
+  ["GET", "/api/inboxes/:id/messages", "List messages"],
+  ["GET", "/api/items/:id", "One message in full"],
+  ["GET", "/api/items/:id/extract", "Codes and links"],
+  ["POST", "/api/inboxes/:id/send", "Send to the app (inbound webhook)"],
   ["GET", "/api/webhooks", "Delivery log"],
-  ["DELETE", "/api/inboxes/:id", "Remove an inbox"],
-  ["POST", "/api/reset", "Wipe all state"],
+  ["POST", "/api/inboxes/bulk", "Delete a run's inboxes by tag"],
+  ["POST", "/api/reset", "Back to a seed"],
 ]
 
 export function AgentsPage() {
@@ -65,7 +122,7 @@ export function AgentsPage() {
     <>
       <PageHeader
         title="Agent access"
-        meta="Same inboxes, over MCP or plain HTTP"
+        meta="The same inboxes, over MCP or plain HTTP"
       />
       <ScrollArea className="min-h-0 flex-1">
         <div className="mx-auto max-w-4xl space-y-10 px-4 py-6 sm:px-6">
@@ -73,44 +130,54 @@ export function AgentsPage() {
             <div className="space-y-2 text-xs leading-relaxed">
               <h2 className="text-[13px] font-medium">MCP server</h2>
               <p className="text-muted-foreground">
-                Add this to your agent's MCP config. The server talks to the
-                running emulator, so anything an agent does shows up here live,
-                and anything you do here the agent can see.
+                This Phonybox serves MCP at{" "}
+                <code className="text-foreground">{mcpUrl}</code>. Connect
+                Claude Code or another agent and it can create inboxes, use them
+                in your product, read the codes and links your app sends, and
+                reply as the person. Anything it does shows up here live.
+              </p>
+              <p className="text-muted-foreground">
+                <a
+                  className="text-foreground underline underline-offset-2"
+                  href="https://rohitlavu11.github.io/phonybox/guide/mcp"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  MCP guide
+                </a>
               </p>
             </div>
-            <Tabs defaultValue="claude" className="gap-0">
+            <Tabs defaultValue={setups[0].id} className="gap-0">
               <TabsList className="mb-2">
-                <TabsTrigger
-                  value="claude"
-                  className="px-2.5 font-mono text-[11px]"
-                >
-                  .mcp.json
-                </TabsTrigger>
-                <TabsTrigger
-                  value="cli"
-                  className="px-2.5 font-mono text-[11px]"
-                >
-                  cli
-                </TabsTrigger>
+                {setups.map((s) => (
+                  <TabsTrigger
+                    key={s.id}
+                    value={s.id}
+                    className="px-2.5 font-mono text-[11px]"
+                  >
+                    {s.label}
+                  </TabsTrigger>
+                ))}
               </TabsList>
-              <TabsContent value="claude">
-                <CodeBlock code={mcpConfig} />
-              </TabsContent>
-              <TabsContent value="cli">
-                <CodeBlock
-                  code={`claude mcp add phonybox -- npx phonybox mcp --url http://127.0.0.1:4100`}
-                  wrap
-                />
-              </TabsContent>
+              {setups.map((s) => (
+                <TabsContent key={s.id} value={s.id} className="space-y-1.5">
+                  <CodeBlock code={s.code} wrap />
+                  <p className="text-[11px] text-muted-foreground">{s.note}</p>
+                </TabsContent>
+              ))}
             </Tabs>
             <dl className="grid gap-x-8 border-t text-xs lg:col-span-2 lg:grid-cols-2">
-              {tools.map(([name, desc]) => (
+              {tools.map(([names, desc]) => (
                 <div
-                  key={name}
-                  className="grid grid-cols-[8.5rem_1fr] gap-3 border-b py-2"
+                  key={names[0]}
+                  className="grid grid-cols-[11rem_1fr] gap-3 border-b py-2"
                 >
-                  <dt>
-                    <code className="text-[11.5px] font-medium">{name}</code>
+                  <dt className="flex flex-col gap-0.5">
+                    {names.map((name) => (
+                      <code key={name} className="text-[11.5px] font-medium">
+                        {name}
+                      </code>
+                    ))}
                   </dt>
                   <dd className="text-muted-foreground">{desc}</dd>
                 </div>

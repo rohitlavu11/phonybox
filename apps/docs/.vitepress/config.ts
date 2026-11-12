@@ -36,6 +36,7 @@ export default defineConfig({
           { text: "Getting started", link: "/guide/getting-started" },
           { text: "Connect your app", link: "/guide/connect-your-app" },
           { text: "Testing AI agents", link: "/guide/testing-agents" },
+          { text: "Use with Claude (MCP)", link: "/guide/mcp" },
           { text: "The inspector", link: "/guide/inspector" },
           { text: "Docker & databases", link: "/guide/docker" },
           { text: "Configuration", link: "/guide/configuration" },

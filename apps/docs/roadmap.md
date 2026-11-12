@@ -9,11 +9,11 @@ Phonybox is early. This is the rough order of work; [discussions](https://github
 - Signed webhooks with retries, failover and replay
 - Inspector UI that scales to thousands of inboxes, light and dark
 - Control API for agents: inbox per run, `wait`, extraction, send-to-app, bulk cleanup
+- [MCP server](/guide/mcp), so Claude Code and other agents get inboxes, waits, codes, links and replies as tools
 - SQLite and PostgreSQL; Docker image; deterministic contract suite run nightly
 
 ## Next
 
-- **MCP server**, so agents get `create_inbox`, `wait_for_message`, `extract` and `send_to_app` as tools
 - **Voice**: Telnyx Call Control and TeXML, with scripted callers (DTMF, speech prompts) for testing voice agents
 - **Twilio** (Messaging, Voice/TwiML)
 - **Email providers**: SendGrid, Postmark, Resend, Amazon SES

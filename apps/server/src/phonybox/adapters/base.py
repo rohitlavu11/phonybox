@@ -50,6 +50,9 @@ class AdapterSpec:
     send_to_app: Callable[[Emulator, dict[str, Any], SendToApp], dict[str, Any]]
     #: Path the provider's SDK appends to its base URL (Telnyx: "/v2"). Display only.
     base_path: str = ""
+    #: How to point the provider's official SDKs at this adapter, for people and agents (shown by the
+    #: MCP `get_setup` tool). `{url}` is replaced with the adapter's base URL, including `base_path`.
+    sdk_setup: str = ""
     #: Optional: the webhook a seeded item would have produced, so demo data has realistic history.
     #: (emu, item, heavy fields, first-attempt time) -> (event, url, build)
     seed_event: Callable[[Emulator, dict[str, Any], dict[str, Any] | None, datetime], tuple[str, str, BuildAttempt]] | None = None

@@ -2,6 +2,10 @@
 
 Phonybox is built for agents that act through email, SMS and fax: a support agent that texts customers, a browser agent that signs up and needs the verification code, a back-office agent that faxes referrals. The pattern is the same every time.
 
+::: tip Using Claude Code or another MCP client?
+Connect it to Phonybox's MCP server and the agent runs this loop itself, with tools instead of `curl`. See [Use with Claude (MCP)](./mcp).
+:::
+
 ## The loop
 
 1. **Give the run its own inbox.** Parallel runs never read each other's mail.
@@ -102,4 +106,4 @@ These are the cases real providers make difficult to test:
 - Use `tags` such as `run:<id>` and `suite:<name>`; search accepts `tag:run:42` (prefix match).
 - Prefer a fresh inbox per run over `since=`; it removes timing races.
 - Unknown recipients get an inbox created automatically (`createdBy: "auto"`). Start with `--no-auto-inboxes` to route unknown email to the catch-all instead.
-- An MCP server for agents is on the [roadmap](/roadmap).
+- Agents that speak MCP get all of this as tools: [Use with Claude (MCP)](./mcp).

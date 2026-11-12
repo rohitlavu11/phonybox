@@ -141,11 +141,15 @@ ADAPTER = AdapterSpec(
     name="Postmark",
     channels=("email",),
     port_offset=3,                     # :4103
+    # Shown to agents by the MCP get_setup tool; {url} becomes this adapter's base URL.
+    sdk_setup="postmark.js: new postmark.ServerClient(token) with apiUrl '{url}'. Plain HTTP: POST {url}/email.",
     defaults=lambda emu: dict(DEFAULTS),
     build_app=build_app,
     send_to_app=send_to_app,
 )
 ```
+
+`sdk_setup` is optional but worth a line: it's how an agent using the [MCP server](/guide/mcp) learns to point your app's SDK at the adapter.
 
 Postmark doesn't sign webhooks. Providers that do (Mailgun, Telnyx, Twilio, SendGrid) should sign inside `build`, the way `mailgun.py` and `telnyx.py` do, so a retry is re-signed with a fresh timestamp.
 
