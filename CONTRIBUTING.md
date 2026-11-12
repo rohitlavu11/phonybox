@@ -67,8 +67,13 @@ Not sure an adapter fits? Open an [adapter request](https://github.com/rohitlavu
 
 ## Pull requests
 
+Phonybox uses trunk-based development: `main` is the only long-lived branch and is always releasable.
+
+- Branch from `main`, keep the branch short-lived (a day or two), and open a PR early. Draft PRs are welcome.
+- `main` is protected: changes land only through a PR with one approving review, resolved conversations and green CI (`Server (sqlite)`, `Server (postgres)`, `Inspector`, `Examples`), on a branch that's up to date with `main`.
+- PRs are squash-merged, so the PR title becomes the commit message on `main`. Write it in the imperative ("Add Postmark adapter") and explain why in the description when it isn't obvious.
+- Unfinished work can merge behind a setting or flag rather than living on a long branch.
 - Keep each PR to one change. Small PRs get reviewed faster.
-- Write commit messages in the imperative ("Add Postmark adapter"), with a body explaining why when it isn't obvious.
 - Add a line to `CHANGELOG.md` under "Unreleased" for anything a user would notice.
 - UI changes: include a screenshot, light and dark if colors changed.
 
