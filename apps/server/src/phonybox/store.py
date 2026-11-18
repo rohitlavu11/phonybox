@@ -83,7 +83,7 @@ class Store:
     def wipe(self) -> None:
         self._adapters = None
         with self.tx() as db:
-            for table in ("inbox_tags", "blobs", "items", "webhooks", "chains", "requests", "inboxes", "opt_outs", "mg_events", "mg_routes", "adapters"):
+            for table in ("inbox_tags", "blobs", "items", "webhooks", "chains", "requests", "inboxes", "opt_outs", "mg_events", "mg_routes", "tx_number_orders", "adapters"):
                 db.execute(f"DELETE FROM {table}")
 
     # ------------------------------------------------------------------- inboxes
@@ -683,6 +683,22 @@ class Store:
                 "INSERT INTO mg_routes VALUES (?,?,?,?,?,?)",
                 (route["id"], route["priority"], route["expression"], json.dumps(route["actions"]), route["description"], route["created_at"]),
             )
+
+    # ------------------------------------------------------- telnyx number orders
+
+    def add_number_order(self, order: dict[str, Any]) -> None:
+        with self.tx() as db:
+            db.execute(
+                "INSERT INTO tx_number_orders (id, customer_reference, created_at, data) VALUES (?,?,?,?)",
+                (order["id"], order.get("customer_reference"), order["created_at"], json.dumps(order)),
+            )
+
+    def number_orders(self, customer_reference: str | None, offset: int, limit: int) -> tuple[list[dict[str, Any]], int]:
+        """Newest first, optionally only those with one customer_reference, and the total."""
+        where, params = ("WHERE customer_reference = ?", [customer_reference]) if customer_reference is not None else ("", [])
+        total = int(self.db.execute(f"SELECT count(*) FROM tx_number_orders {where}", params).fetchone()[0])
+        rows = self.db.execute(f"SELECT data FROM tx_number_orders {where} ORDER BY created_at DESC, id LIMIT ? OFFSET ?", [*params, limit, offset])
+        return [json.loads(r[0]) for r in rows], total
 
     def routes(self) -> list[dict[str, Any]]:
         return [

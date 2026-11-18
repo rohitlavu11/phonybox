@@ -1,6 +1,6 @@
 [project]
 name = "phonybox"
-version = "0.2.0"
+version = "0.2.1"
 description = "Local, stateful Mailgun and Telnyx emulators for testing apps and AI agents that send email, SMS and fax."
 requires-python = ">=3.12"
 dependencies = [
