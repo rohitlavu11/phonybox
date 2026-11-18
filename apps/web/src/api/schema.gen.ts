@@ -760,6 +760,10 @@ export interface components {
             ports: {
                 [key: string]: number;
             };
+            /** Urls */
+            urls: {
+                [key: string]: string;
+            };
             /** Version */
             version: string;
         };

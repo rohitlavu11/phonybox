@@ -4,6 +4,10 @@
     phonybox --db .phonybox/state.db               SQLite file, survives restarts
     phonybox --db postgresql://user:pw@host/db     PostgreSQL (pip install 'phonybox[postgres]')
 
+On Google Cloud, `?auth=gcp-iam` signs in to Cloud SQL as the service account Phonybox
+runs as (IAM database authentication, no password): the user is the account's email
+without `.gserviceaccount.com`, URL-encoded, and the password is its access token.
+
 The store writes portable SQL with `?` placeholders. Each backend adapts the
 few things that differ: placeholder style, column types, the natural-sort
 collation, and row access. Rows support both `row["col"]` and `row[0]` on
@@ -16,8 +20,10 @@ HTML/headers, webhook bodies) live in separate columns that list queries skip.
 
 from __future__ import annotations
 
+import json
 import re
 import sqlite3
+import urllib.request
 from collections.abc import Iterable, Iterator, Sequence
 from typing import Any, Literal, Protocol
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
@@ -266,53 +272,87 @@ class PostgresDatabase:
 
     An optional `?schema=name` on the URL keeps phonybox's tables in their own
     schema (created if missing), so it can share a database with your app.
+    `?auth=gcp-iam` signs in with the Google Cloud service account (see above).
+
+    When the server drops the connection (a restart, a failover, maintenance), the
+    statement that hit it fails and the next one opens a new connection.
     """
 
     dialect: Dialect = "postgres"
 
     def __init__(self, url: str) -> None:
         try:
-            import psycopg
+            import psycopg  # noqa: F401
         except ImportError as e:  # pragma: no cover - exercised by users without the extra
             raise SystemExit("PostgreSQL support needs psycopg: pip install 'phonybox[postgres]'") from e
 
         parts = urlsplit(url)
         query = dict(parse_qsl(parts.query))
         self.schema_name = query.pop("schema", None)
-        conninfo = urlunsplit(parts._replace(query=urlencode(query)))
+        if self.schema_name and not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", self.schema_name):
+            raise ValueError(f"Invalid schema name: {self.schema_name!r}")
+        auth = query.pop("auth", None)
+        if auth not in (None, "gcp-iam"):
+            raise ValueError(f"Unknown auth {auth!r} in the database URL (supported: gcp-iam)")
+        self._iam = auth == "gcp-iam"
+        self._conninfo = urlunsplit(parts._replace(query=urlencode(query)))
+
+        self._conn = self._open()
+        # ICU numeric collation gives the same natural order as SQLite's natsort ("run 9" < "run 10").
+        self._conn.execute("CREATE COLLATION IF NOT EXISTS natsort (provider = icu, locale = 'und-u-kn-true')")
+        for statement in _statements(schema("postgres")):
+            self._conn.execute(statement)  # type: ignore[arg-type]
+
+    def _open(self) -> Any:
+        import psycopg
 
         def row_factory(cursor: Any) -> Any:
             keys = {c.name: i for i, c in enumerate(cursor.description or [])}
             return lambda values: _PgRow(keys, values)
 
-        self._conn = psycopg.connect(conninfo, autocommit=True, row_factory=row_factory)
+        # psycopg leaves out a None keyword, so without IAM the URL's own password (if any) is used.
+        password = gcp_access_token() if self._iam else None
+        conn = psycopg.connect(self._conninfo, autocommit=True, row_factory=row_factory, password=password)
         if self.schema_name:
-            if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", self.schema_name):
-                raise ValueError(f"Invalid schema name: {self.schema_name!r}")
-            self._conn.execute(f'CREATE SCHEMA IF NOT EXISTS "{self.schema_name}"')
-            self._conn.execute(f'SET search_path TO "{self.schema_name}"')
-        # ICU numeric collation gives the same natural order as SQLite's natsort ("run 9" < "run 10").
-        self._conn.execute("CREATE COLLATION IF NOT EXISTS natsort (provider = icu, locale = 'und-u-kn-true')")
-        for statement in _statements(schema("postgres")):
-            self._conn.execute(statement)  # type: ignore[arg-type]
+            conn.execute(f'CREATE SCHEMA IF NOT EXISTS "{self.schema_name}"')
+            conn.execute(f'SET search_path TO "{self.schema_name}"')
+        return conn
+
+    @property
+    def _live(self) -> Any:
+        if self._conn.broken:
+            self._conn = self._open()
+        return self._conn
 
     @staticmethod
     def _sql(sql: str) -> str:
         return sql.replace("%", "%%").replace("?", "%s")
 
     def execute(self, sql: str, params: Sequence[Any] = ()) -> Cursor:
-        return self._conn.execute(self._sql(sql), params or None)  # type: ignore[return-value, arg-type]
+        return self._live.execute(self._sql(sql), params or None)  # type: ignore[no-any-return]
 
     def executemany(self, sql: str, rows: Iterable[Sequence[Any]]) -> None:
-        with self._conn.cursor() as cur:
-            cur.executemany(self._sql(sql), list(rows))  # type: ignore[arg-type]
+        with self._live.cursor() as cur:
+            cur.executemany(self._sql(sql), list(rows))
 
     def drop_schema(self) -> None:
         if self.schema_name:
-            self._conn.execute(f'DROP SCHEMA IF EXISTS "{self.schema_name}" CASCADE')
+            self._live.execute(f'DROP SCHEMA IF EXISTS "{self.schema_name}" CASCADE')
 
     def close(self) -> None:
         self._conn.close()
+
+
+#: The metadata server every Google Cloud runtime (Cloud Run, GKE, Compute Engine) serves its service account's token from.
+METADATA_TOKEN_URL = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token"
+
+
+def gcp_access_token() -> str:
+    """The service account's access token: the password for Cloud SQL IAM database authentication.
+    Good for about an hour, which only matters when a connection opens."""
+    request = urllib.request.Request(METADATA_TOKEN_URL, headers={"Metadata-Flavor": "Google"})
+    with urllib.request.urlopen(request, timeout=5) as response:  # noqa: S310 - a fixed http URL on the metadata server
+        return str(json.load(response)["access_token"])
 
 
 def _statements(script: str) -> list[str]:

@@ -31,7 +31,7 @@ from ..clock import iso, unix
 from ..signing import mailgun_signature
 from ..text import format_address, parse_addresses
 from .base import AdapterSpec, BuildAttempt
-from .common import csv, install_request_log, multipart, stable_hex, summarize_form
+from .common import csv, install_request_log, multipart, same_key, stable_hex, summarize_form
 
 if TYPE_CHECKING:
     from ..emulator import Emulator
@@ -328,7 +328,7 @@ def build_app(emu: Emulator) -> FastAPI:
         except ValueError:
             return PlainTextResponse("Forbidden", status_code=401)
         s = settings(emu)
-        if user != "api" or (not s.get("acceptAnyKey") and key != s.get("apiKey")):
+        if user != "api" or (not s.get("acceptAnyKey") and not same_key(key, s.get("apiKey"))):
             return PlainTextResponse("Forbidden", status_code=401)
         return None
 
@@ -418,7 +418,7 @@ def build_app(emu: Emulator) -> FastAPI:
         items = emu.store.mg_events(
             domain, event=q.get("event"), recipient=q.get("recipient"), ascending=q.get("ascending") == "yes", limit=limit, offset=offset
         )
-        base = f"{emu.cfg.base_url(emu.port(ID))}/v3/{domain}/events"
+        base = f"{emu.url(ID)}/v3/{domain}/events"
 
         def link(off: int) -> str:
             return f"{base}/{base64.urlsafe_b64encode(str(max(0, off)).encode()).decode()}"
@@ -463,7 +463,7 @@ def build_app(emu: Emulator) -> FastAPI:
                     "address": e["recipient"], "code": str(e["delivery-status"]["code"]), "error": e["delivery-status"]["message"],
                     "created_at": format_datetime(datetime.fromtimestamp(e["timestamp"]).astimezone()),
                 }
-        base = f"{emu.cfg.base_url(emu.port(ID))}/v3/{domain}/bounces"
+        base = f"{emu.url(ID)}/v3/{domain}/bounces"
         return JSONResponse({"items": list(seen.values()), "paging": {"first": base, "last": base, "next": base, "previous": base}})
 
     @app.post("/v3/routes")

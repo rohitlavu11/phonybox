@@ -10,6 +10,9 @@ Listens on **:4102**. Point the SDK's `baseURL` / `base_url` at `http://localhos
 | `GET` | `/v2/messages/{id}` | Status follows the lifecycle: `queued` → `sent` → `delivered` / `delivery_failed`. |
 | `GET` | `/v2/messaging_profiles` | One profile with your webhook URLs. |
 | `GET` | `/v2/phone_numbers` | Your app numbers. |
+| `GET` | `/v2/available_phone_numbers` | Fictional 555-01xx numbers that are free: `filter[limit]` (default 10), `filter[national_destination_code]` for an area code. US local only. |
+| `POST` | `/v2/number_orders` | `phone_numbers: [{phone_number}]`. An ordered number joins `appNumbers` at once (`status: success`), so your app can text and fax from it. A number the app already has is refused with `422`. |
+| `GET` | `/media/{message id}/{n}` | An MMS's media, linked from the message's `media`. |
 
 Messages are segmented the way carriers do it: GSM-7 at 160/153 characters, UCS-2 at 70/67.
 
@@ -38,7 +41,7 @@ Outbound lifecycle (seconds after the request): `fax.queued` (0), `fax.media.pro
 
 ## Signing
 
-Webhooks carry `telnyx-timestamp` and `telnyx-signature-ed25519 = base64(Ed25519.sign(timestamp + "|" + body))`. The public key is printed at startup and shown under **Adapters → Telnyx → Keys**. The official SDKs' `webhooks.unwrap()` verifies it; that's tested nightly.
+Webhooks carry `telnyx-timestamp` and `telnyx-signature-ed25519 = base64(Ed25519.sign(timestamp + "|" + body))`. The public key is printed at startup and shown under **Adapters → Telnyx → Keys**. It is derived from a seed: anywhere other people can reach Phonybox, set your own with `PHONYBOX_TELNYX_KEY_SEED`, because anyone who knows the seed can sign webhooks your app will accept. The official SDKs' `webhooks.unwrap()` verifies it; that's tested nightly.
 
 ## Settings
 

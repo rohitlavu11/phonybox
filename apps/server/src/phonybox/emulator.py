@@ -33,6 +33,7 @@ from .signing import TelnyxSigner
 from .store import Store
 
 PHONE_AREAS = ("415", "628", "650", "510", "408", "212", "646", "718", "312", "617", "206", "303")
+_BOOLS = {"1": True, "true": True, "yes": True, "on": True, "0": False, "false": False, "no": False, "off": False}
 
 
 class Emulator:
@@ -55,12 +56,15 @@ class Emulator:
         self.signer = TelnyxSigner(self.cfg.telnyx_key_seed)
         self.started_at = self.clock.now()
         self.dataset: Dataset = self.cfg.dataset
+        self.pinned = self._pinned_settings()
         if not self.store.adapter_states():  # fresh database
             self.reset(self.cfg.dataset)
+        else:
+            self._apply_pinned()
 
-        self.control = build_control_app(self)
-        #: One FastAPI app per registered adapter, each on its own port.
+        #: One FastAPI app per registered adapter, each on its own port and under /<id> on the control port.
         self.adapter_apps: dict[str, FastAPI] = {spec.id: spec.build_app(self) for spec in adapters.REGISTRY.values()}
+        self.control = build_control_app(self)
 
     # ------------------------------------------------------------- state
 
@@ -71,6 +75,28 @@ class Emulator:
         self.scheduler = Scheduler(self.clock)
         self.deliverer.scheduler = self.scheduler
         seed.load(self, self.dataset)
+        self._apply_pinned()
+
+    def _pinned_settings(self) -> dict[str, dict[str, str | bool]]:
+        """cfg.adapter_settings checked against each adapter's settings, typed like its defaults."""
+        out: dict[str, dict[str, str | bool]] = {}
+        for adapter_id, values in self.cfg.adapter_settings.items():
+            defaults = adapters.get(adapter_id).defaults(self)
+            for key, raw in values.items():
+                if key not in defaults:
+                    raise ValueError(f"{adapter_id} has no setting {key!r} (settings: {', '.join(sorted(defaults))})")
+                if isinstance(defaults[key], bool):
+                    if raw.strip().lower() not in _BOOLS:
+                        raise ValueError(f"{adapter_id}.{key} is true or false, not {raw!r}")
+                    out.setdefault(adapter_id, {})[key] = _BOOLS[raw.strip().lower()]
+                else:
+                    out.setdefault(adapter_id, {})[key] = raw
+        return out
+
+    def _apply_pinned(self) -> None:
+        for adapter_id, values in self.pinned.items():
+            if any(self.store.adapter_state(adapter_id)["values"].get(k) != v for k, v in values.items()):
+                self.store.patch_adapter(adapter_id, None, values)
 
     def inbox_id(self, channel: str, address: str) -> str:
         if channel == "email":
@@ -108,6 +134,13 @@ class Emulator:
 
     def port(self, adapter_id: str) -> int:
         return self.cfg.port_for(adapter_id, adapters.get(adapter_id).port_offset)
+
+    def url(self, app_id: str) -> str:
+        """Where people and apps reach the control app ("control") or an adapter, without the adapter's base_path."""
+        if self.cfg.public_url:
+            base = self.cfg.public_url.rstrip("/")
+            return base if app_id == "control" else f"{base}/{app_id}"
+        return self.cfg.base_url(self.cfg.control_port if app_id == "control" else self.port(app_id))
 
     def apps(self) -> dict[str, tuple[FastAPI, int]]:
         return {"control": (self.control, self.cfg.control_port)} | {

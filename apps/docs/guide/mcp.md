@@ -41,6 +41,15 @@ The HTTP endpoint needs nothing installed beyond Phonybox itself, including the 
 
 Check it's connected with `claude mcp list`, or `/mcp` inside Claude Code.
 
+A Phonybox with an [access token](./docker#in-the-cloud) needs it on every MCP request:
+
+```sh
+claude mcp add --transport http phonybox https://phonybox.example.com/mcp \
+  --header "Authorization: Bearer $PHONYBOX_ACCESS_TOKEN"
+```
+
+`phonybox mcp --url …` reads the token from `PHONYBOX_ACCESS_TOKEN`.
+
 ## Ask Claude to test something
 
 Point your app at Phonybox ([Connect your app](./connect-your-app)), then ask in plain words. For example:
@@ -83,4 +92,4 @@ If `wait_for_message` times out, its error says what Phonybox saw: whether an in
 
 ## Security
 
-The MCP endpoint has the same access as the control API: anyone who can reach it can read and send messages. Keep Phonybox on your machine or inside CI. Requests from web pages on other sites (anything with an `Origin` header that isn't localhost) are refused, which also blocks DNS-rebinding attacks.
+The MCP endpoint has the same access as the control API: anyone who can reach it can read and send messages. Keep Phonybox on your machine or inside CI, or set an [access token](./docker#in-the-cloud) where others can reach it. Requests from web pages on other sites (anything with an `Origin` header that isn't localhost) are refused, which also blocks DNS-rebinding attacks.
