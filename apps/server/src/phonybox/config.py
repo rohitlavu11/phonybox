@@ -38,7 +38,8 @@ class Config(BaseModel):
     event_delay: float = 0.5
 
     #: Seed for the Telnyx Ed25519 signing key. Stable by default so TELNYX_PUBLIC_KEY in your
-    #: .env keeps working across restarts.
+    #: .env keeps working across restarts. Set your own (PHONYBOX_TELNYX_KEY_SEED) wherever
+    #: someone other than you can reach Phonybox: anyone who knows the seed can sign webhooks.
     telnyx_key_seed: str = "phonybox/telnyx-signing-key"
 
     #: Built UI to serve at the control port, if present.
@@ -50,6 +51,23 @@ class Config(BaseModel):
     #: Host used in URLs the emulator hands out (media links, paging). Defaults to `host`,
     #: or 127.0.0.1 when binding all interfaces.
     public_host: str | None = None
+    #: The one URL people and apps reach Phonybox at, when it runs behind a proxy or on a
+    #: platform that serves a single port (Cloud Run, Fly, Render). Every adapter is also
+    #: served on the control port under /<adapter id>, so with this set the Mailgun adapter
+    #: is {public_url}/mailgun and Telnyx is {public_url}/telnyx, and every URL Phonybox hands
+    #: out (media links, paging, MCP get_setup) uses it instead of host and port.
+    public_url: str | None = None
+
+    #: When set, the inspector, the control API and /mcp require this token, as
+    #: `Authorization: Bearer <token>` or as either half of HTTP Basic credentials (so a browser
+    #: can sign in with its own password prompt). /api/health stays open for health checks, and
+    #: the adapters keep their providers' own auth (see each adapter's acceptAnyKey and apiKey).
+    access_token: str | None = None
+
+    #: Adapter settings to hold fixed, by adapter id then setting key (e.g. {"mailgun":
+    #: {"apiKey": "..."}}), applied over the defaults at start and after every reset. From the
+    #: environment as PHONYBOX_<ADAPTER>__<SETTING>, e.g. PHONYBOX_MAILGUN__API_KEY.
+    adapter_settings: dict[str, dict[str, str]] = Field(default_factory=dict)
 
     def port_for(self, adapter_id: str, offset: int) -> int:
         named = {"mailgun": self.mailgun_port, "telnyx": self.telnyx_port}.get(adapter_id)

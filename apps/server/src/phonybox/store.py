@@ -20,6 +20,8 @@ from .db import Database, Row
 
 PAGE = 100
 MAX_PAGE = 500
+#: The API log keeps this many of the newest calls, so a caller that never authenticates can't grow it without bound.
+MAX_REQUESTS = 10_000
 _CHUNK = 900
 
 
@@ -566,6 +568,8 @@ class Store:
     def add_request(self, r: dict[str, Any]) -> None:
         with self.tx() as db:
             self.insert_requests([r], db)
+            # Every call an adapter gets is logged, a refused one included, so keep only the newest.
+            db.execute("DELETE FROM requests WHERE seq <= (SELECT max(seq) FROM requests) - ?", (MAX_REQUESTS,))
         self._publish("requests")
 
     @staticmethod

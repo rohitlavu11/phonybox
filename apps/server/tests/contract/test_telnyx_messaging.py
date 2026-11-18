@@ -168,3 +168,21 @@ async def test_profiles_and_numbers(telnyx: httpx.AsyncClient) -> None:
     assert profiles["data"][0]["record_type"] == "messaging_profile" and profiles["meta"]["total_results"] == 1
     numbers = (await telnyx.get("/v2/phone_numbers")).json()["data"]
     assert [n["phone_number"] for n in numbers] == ["+16285550100", "+16285550111", "+16285550150"]
+
+
+async def test_a_number_found_and_ordered_becomes_one_the_app_can_text_from(telnyx: httpx.AsyncClient) -> None:
+    found = await telnyx.get("/v2/available_phone_numbers", params={"filter[country_code]": "US", "filter[phone_number_type]": "local", "filter[features][]": ["sms"], "filter[limit]": "2"})
+    numbers = [n["phone_number"] for n in found.json()["data"]]
+    assert len(numbers) == 2 and APP not in numbers
+    owned = {n["phone_number"] for n in (await telnyx.get("/v2/phone_numbers")).json()["data"]}
+    assert not owned & set(numbers)
+
+    order = await telnyx.post("/v2/number_orders", json={"phone_numbers": [{"phone_number": numbers[0]}], "messaging_profile_id": "mp-1"})
+    assert order.status_code == 200
+    [ordered] = order.json()["data"]["phone_numbers"]
+    assert (ordered["phone_number"], ordered["status"]) == (numbers[0], "success")
+    assert numbers[0] in {n["phone_number"] for n in (await telnyx.get("/v2/phone_numbers")).json()["data"]}
+    assert (await send(telnyx, **{"from": numbers[0]})).status_code == 200
+
+    again = await telnyx.post("/v2/number_orders", json={"phone_numbers": [{"phone_number": numbers[0]}]})
+    assert again.status_code == 422, "a number the app already has is not for sale"

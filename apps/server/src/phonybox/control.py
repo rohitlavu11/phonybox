@@ -21,6 +21,7 @@ from fastapi.staticfiles import StaticFiles
 
 from . import __version__
 from . import adapters as registry
+from .access import RequireAccessToken
 from .clock import iso
 from .models import (
     AdapterPatch,
@@ -94,6 +95,7 @@ def build_control_app(emu: Emulator) -> FastAPI:
             "version": __version__,
             "dataset": emu.dataset,
             "ports": {name: port for name, (_, port) in emu.apps().items()},
+            "urls": {name: emu.url(name) for name in emu.apps()},
         }
 
     @app.get("/api/stats", response_model=list[ChannelStats], tags=["inboxes"])
@@ -355,6 +357,13 @@ def build_control_app(emu: Emulator) -> FastAPI:
 
         return StreamingResponse(stream(), media_type="text/event-stream", headers={"cache-control": "no-cache", "x-accel-buffering": "no"})
 
+    # ------------------------------------------------------------ adapters
+
+    # Every adapter also answers under /<id> on this port, so one port (one URL) serves everything:
+    # http://localhost:4100/mailgun/v3/... is the same as http://localhost:4101/v3/.... Before the UI's catch-all.
+    for adapter_id, adapter_app in emu.adapter_apps.items():
+        app.mount(f"/{adapter_id}", adapter_app)
+
     # ----------------------------------------------------------------- MCP
 
     # /mcp: the same inboxes as tools for AI agents. Before the UI so its catch-all doesn't shadow it.
@@ -373,5 +382,8 @@ def build_control_app(emu: Emulator) -> FastAPI:
         def spa(path: str) -> FileResponse:
             file = Path(dist, path)
             return FileResponse(file if path and file.is_file() else Path(dist, "index.html"))
+
+    if emu.cfg.access_token:
+        app.add_middleware(RequireAccessToken, token=emu.cfg.access_token, open_prefixes=tuple(f"/{a}" for a in emu.adapter_apps))
 
     return app

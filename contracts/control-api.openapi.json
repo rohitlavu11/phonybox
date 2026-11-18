@@ -649,6 +649,13 @@
             "title": "Ports",
             "type": "object"
           },
+          "urls": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Urls",
+            "type": "object"
+          },
           "version": {
             "title": "Version",
             "type": "string"
@@ -658,7 +665,8 @@
           "ok",
           "version",
           "dataset",
-          "ports"
+          "ports",
+          "urls"
         ],
         "title": "Health",
         "type": "object"
@@ -1390,7 +1398,7 @@
   "info": {
     "description": "Inboxes, captured messages, webhook and API logs. Used by the inspector UI and by agents.",
     "title": "phonybox control API",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "openapi": "3.1.0",
   "paths": {

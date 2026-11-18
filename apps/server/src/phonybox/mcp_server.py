@@ -21,7 +21,6 @@ from __future__ import annotations
 import asyncio
 import html as htmllib
 import re
-from collections.abc import Callable
 from typing import TYPE_CHECKING, Annotated, Any, Literal
 from urllib.parse import quote, urlsplit
 
@@ -83,11 +82,20 @@ DeliveryWait = Annotated[
 class Api:
     """The control API, in-process (the /mcp endpoint) or over HTTP (`phonybox mcp`)."""
 
-    def __init__(self, http: httpx.AsyncClient, public_url: Callable[[int], str], where: str) -> None:
+    def __init__(self, http: httpx.AsyncClient, where: str, reached_at: str | None = None) -> None:
         self.http = http
-        #: port -> base URL that people and the app under test use for that port
-        self.public_url = public_url
         self.where = where
+        #: The URL `phonybox mcp --url` reached the server at; None in-process.
+        self.reached_at = reached_at
+
+    def urls(self, health: dict[str, Any]) -> dict[str, str]:
+        """Each app's base URL ("control", then adapter ids) as the caller reaches it: the server's own
+        URLs, unless `phonybox mcp` reached the server at another address (a Compose service name)."""
+        urls: dict[str, str] = health.get("urls") or {}
+        if self.reached_at is None or urls.get("control", "").rstrip("/") == self.reached_at:
+            return urls
+        parts = urlsplit(self.reached_at)
+        return {name: f"{parts.scheme}://{parts.hostname}:{port}" for name, port in health["ports"].items()}
 
     async def request(
         self,
@@ -327,12 +335,12 @@ def build_server(api: Api) -> MCPServer:
         Call this first if you're not sure the app is configured for Phonybox."""
         health = await api.request("GET", "/api/health")
         states = await api.request("GET", "/api/adapters")
+        urls = api.urls(health)
         providers = []
         for spec in registry.REGISTRY.values():
             if spec.id not in states:
                 continue
-            port = health["ports"].get(spec.id)
-            url = f"{api.public_url(port)}{spec.base_path}" if port else None
+            url = f"{urls[spec.id]}{spec.base_path}" if spec.id in urls else None
             providers.append({
                 "id": spec.id,
                 "name": spec.name,
@@ -342,7 +350,7 @@ def build_server(api: Api) -> MCPServer:
                 "sdk_setup": spec.sdk_setup.replace("{url}", url or ""),
                 "settings": states[spec.id]["values"],
             })
-        control = api.public_url(health["ports"]["control"])
+        control = urls["control"]
         return {
             "version": health["version"],
             "inspector": control,
@@ -647,7 +655,8 @@ class _LocalOriginsOnly:
 
 def mount(app: FastAPI, emu: Emulator) -> MCPServer:
     """Serve the MCP server at /mcp on the control app. Run `server.session_manager.run()` while serving."""
-    api = Api(httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://phonybox"), emu.cfg.base_url, "this server")
+    token = {"authorization": f"Bearer {emu.cfg.access_token}"} if emu.cfg.access_token else None
+    api = Api(httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://phonybox", headers=token), "this server")
     server = build_server(api)
     http_app = server.streamable_http_app(
         streamable_http_path="/mcp",
@@ -656,19 +665,20 @@ def mount(app: FastAPI, emu: Emulator) -> MCPServer:
         transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=False),  # see _LocalOriginsOnly
     )
     endpoint = next(r.endpoint for r in http_app.routes if isinstance(r, Route) and r.path == "/mcp")
-    hosts = {"localhost", "127.0.0.1", "::1", *(h for h in (emu.cfg.public_host, emu.cfg.host) if h)}
+    public = urlsplit(emu.cfg.public_url).hostname if emu.cfg.public_url else None
+    hosts = {"localhost", "127.0.0.1", "::1", *(h for h in (emu.cfg.public_host, emu.cfg.host, public) if h)}
     app.router.routes.append(Route("/mcp", endpoint=_LocalOriginsOnly(endpoint, hosts), include_in_schema=False))
     return server
 
 
-def run_stdio(url: str) -> None:
+def run_stdio(url: str, access_token: str | None = None) -> None:
     """`phonybox mcp`: the same tools over stdio, against a Phonybox running at `url`."""
     base = url.rstrip("/")
-    parts = urlsplit(base)
+    token = {"authorization": f"Bearer {access_token}"} if access_token else None
 
     async def main() -> None:
-        async with httpx.AsyncClient(base_url=base) as http:
-            api = Api(http, lambda port: f"{parts.scheme}://{parts.hostname}:{port}", base)
+        async with httpx.AsyncClient(base_url=base, headers=token) as http:
+            api = Api(http, base, reached_at=base)
             await build_server(api).run_stdio_async()
 
     asyncio.run(main())

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any
@@ -26,6 +27,11 @@ def stable_hex(*parts: str, length: int = 32) -> str:
 def stable_uuid(*parts: str) -> str:
     h = stable_hex(*parts, length=32)
     return f"{h[:8]}-{h[8:12]}-4{h[13:16]}-a{h[17:20]}-{h[20:32]}"
+
+
+def same_key(given: str, expected: Any) -> bool:
+    """An API key check that takes the same time however much of the key matches."""
+    return hmac.compare_digest(given.encode(), str(expected or "").encode())
 
 
 def csv(value: Any) -> list[str]:

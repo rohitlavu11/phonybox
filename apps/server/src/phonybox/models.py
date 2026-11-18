@@ -302,6 +302,9 @@ class Health(Model):
     version: str
     dataset: Literal["empty", "small", "large"]
     ports: dict[str, int]
+    #: Where people and apps reach the control app ("control") and each adapter. With a public URL set
+    #: these are <public url> and <public url>/<adapter id>; otherwise http://<host>:<port>.
+    urls: dict[str, str]
 
 
 # -------------------------------------------------------------------------- page

@@ -1,7 +1,8 @@
 """Telnyx emulation: Messaging (SMS/MMS) and Programmable Fax.
 
 Outbound (your app -> emulator): POST /v2/messages, GET /v2/messages/:id,
-/v2/faxes (send, list, get, delete), messaging profiles and phone numbers.
+/v2/faxes (send, list, get, delete), messaging profiles, phone numbers, and
+number search and ordering (an ordered number joins appNumbers).
 
 Inbound (emulator -> your app), signed with Ed25519 like Telnyx:
   messaging: message.sent, message.finalized for outbound; message.received when
@@ -23,7 +24,7 @@ from fastapi.responses import JSONResponse, Response
 from ..clock import iso, unix
 from ..text import E164, START_WORDS, STOP_WORDS, sms_encoding
 from .base import AdapterSpec, BuildAttempt
-from .common import csv, install_request_log, make_pdf, pdf_page_count, stable_uuid, summarize_form
+from .common import csv, install_request_log, make_pdf, pdf_page_count, same_key, stable_uuid, summarize_form
 
 if TYPE_CHECKING:
     from ..emulator import Emulator
@@ -109,7 +110,7 @@ def message_record(emu: Emulator, item: dict[str, Any], *, to_status: str, extra
         "text": item["body"],
         "subject": None,
         "media": [
-            {"url": f"{emu.cfg.base_url(emu.port(ID))}/media/{item['id']}/{i}", "content_type": m["contentType"], "size": m["size"], "hash_sha256": None}
+            {"url": f"{emu.url(ID)}/media/{item['providerId']}/{i}", "content_type": m["contentType"], "size": m["size"], "hash_sha256": None}
             for i, m in enumerate(item["media"])
         ],
         "webhook_url": item.get("webhookUrl") or s.get("messagingUrl") or None,
@@ -130,6 +131,21 @@ def message_record(emu: Emulator, item: dict[str, Any], *, to_status: str, extra
 
 def _owned(emu: Emulator) -> list[str]:
     return csv(settings(emu).get("appNumbers"))
+
+
+def _free_numbers(emu: Emulator, limit: int, area: str | None) -> list[str]:
+    """Fictional 555-01xx numbers that are neither the app's nor an inbox's, for number search."""
+    from ..emulator import PHONE_AREAS
+
+    taken = set(_owned(emu))
+    out: list[str] = []
+    for code in [area] if area else PHONE_AREAS:
+        prefix = f"+1{code}55501"
+        taken |= emu.store.used_addresses("sms", f"{prefix}%") | emu.store.used_addresses("fax", f"{prefix}%")
+        out += [n for n in (f"{prefix}{i:02d}" for i in range(100)) if n not in taken][: limit - len(out)]
+        if len(out) == limit:
+            break
+    return out
 
 
 def send_sms(emu: Emulator, *, app_number: str, to: str, text: str, media_urls: list[str], webhook_url: str | None, webhook_failover_url: str | None) -> dict[str, Any]:
@@ -241,7 +257,7 @@ def fax_record(emu: Emulator, item: dict[str, Any], status: str) -> dict[str, An
         "direction": item["direction"],
         "from": item["peerNumber"] if inbound else item["appNumber"],
         "to": item["appNumber"] if inbound else item["peerNumber"],
-        "media_url": item.get("mediaUrl") or f"{emu.cfg.base_url(emu.port(ID))}/fax-media/{item['providerId']}.pdf",
+        "media_url": item.get("mediaUrl") or f"{emu.url(ID)}/fax-media/{item['providerId']}.pdf",
         "quality": item["quality"],
         "status": status,
         "store_media": False,
@@ -353,7 +369,7 @@ def send_fax_to_app(emu: Emulator, inbox: dict[str, Any], *, app_number: str, ti
         "createdAt": iso(at),
     }
     emu.store.add_item(item, blobs=[(f"{title}.pdf", "application/pdf", make_pdf(title, pages))])
-    media = f"{emu.cfg.base_url(emu.port(ID))}/fax-media/{item['providerId']}.pdf"
+    media = f"{emu.url(ID)}/fax-media/{item['providerId']}.pdf"
     enqueue_event(
         emu, channel="fax", event_type="fax.received", related_id=item["id"],
         payload=_fax_payload(item, "received", {"media_url": media, "page_count": pages, "call_duration_secs": 8 + pages * 6}),
@@ -372,7 +388,7 @@ def build_app(emu: Emulator) -> FastAPI:
     def auth_failed(request: Request) -> Response | None:
         header = request.headers.get("authorization", "")
         s = settings(emu)
-        if not header.lower().startswith("bearer ") or (not s.get("acceptAnyKey") and header[7:].strip() != s.get("apiKey")):
+        if not header.lower().startswith("bearer ") or (not s.get("acceptAnyKey") and not same_key(header[7:].strip(), s.get("apiKey"))):
             return errors(401, "10009", "Authentication failed", "Could not understand the provided credentials.")
         return None
 
@@ -440,6 +456,55 @@ def build_app(emu: Emulator) -> FastAPI:
             for n in _owned(emu)
         ]
         return JSONResponse({"data": data, "meta": {"page_number": 1, "page_size": 20, "total_pages": 1, "total_results": len(data)}})
+
+    @app.get("/v2/available_phone_numbers")
+    async def available_numbers(request: Request) -> Response:
+        if r := auth_failed(request):
+            return r
+        q = request.query_params
+        limit = max(1, min(int(q.get("filter[limit]") or 10), 100))
+        wanted = q.get("filter[country_code]", "US") == "US" and q.get("filter[phone_number_type]", "local") == "local"
+        found = _free_numbers(emu, limit, q.get("filter[national_destination_code]")) if wanted else []
+        data = [
+            {
+                "record_type": "available_phone_number", "phone_number": n, "vanity_format": "", "best_effort": False, "quickship": True,
+                "reservable": True, "region_information": [{"region_type": "country_code", "region_name": "US"}],
+                "cost_information": {"upfront_cost": "0.00", "monthly_cost": "0.00", "currency": "USD"},
+                "features": [{"name": f} for f in ("sms", "mms", "voice", "fax")],
+            }
+            for n in found
+        ]
+        return JSONResponse({"data": data, "meta": {"total_results": len(data), "best_effort_results": 0}})
+
+    @app.post("/v2/number_orders")
+    async def order_numbers(request: Request) -> Response:
+        """Buying a number makes it one of the app's numbers (appNumbers), so the app can text and fax from it."""
+        if r := auth_failed(request):
+            return r
+        data = await body_json(request) or {}
+        wanted = [str(n.get("phone_number") or "") for n in data.get("phone_numbers") or [] if isinstance(n, dict)]
+        if not wanted:
+            return errors(422, "10015", "Invalid parameter", "phone_numbers needs at least one phone_number.", "/phone_numbers")
+        owned = _owned(emu)
+        for i, number in enumerate(wanted):
+            if not E164.match(number) or number in owned or wanted.index(number) != i:
+                return errors(422, "10015", "Invalid parameter", f"{number or 'The number'} is not available to order.", f"/phone_numbers/{i}/phone_number")
+        emu.store.patch_adapter(ID, None, {"appNumbers": ", ".join([*owned, *wanted])})
+        now = iso(emu.clock.now())
+        order = {
+            "id": emu.ids.uuid(), "record_type": "number_order", "phone_numbers_count": len(wanted),
+            "connection_id": data.get("connection_id"), "messaging_profile_id": data.get("messaging_profile_id"),
+            "billing_group_id": None, "customer_reference": data.get("customer_reference"),
+            "phone_numbers": [
+                {
+                    "id": stable_uuid("number", n), "record_type": "number_order_phone_number", "phone_number": n, "bundle_id": None,
+                    "regulatory_requirements": [], "requirements_met": True, "status": "success", "country_code": "US", "phone_number_type": "local",
+                }
+                for n in wanted
+            ],
+            "sub_number_orders_ids": [], "requirements_met": True, "status": "success", "created_at": now, "updated_at": now,
+        }
+        return JSONResponse({"data": order})
 
     @app.post("/v2/faxes")
     async def create_fax(request: Request) -> Response:
@@ -521,9 +586,11 @@ def build_app(emu: Emulator) -> FastAPI:
         data = blob[2] if blob else make_pdf(item["title"], item["pages"])
         return Response(data, media_type="application/pdf")
 
-    @app.get("/media/{item_id}/{idx}")
-    async def message_media(item_id: str, idx: int) -> Response:
-        blob = emu.store.blob(item_id, idx)
+    @app.get("/media/{message_id}/{idx}")
+    async def message_media(message_id: str, idx: int) -> Response:
+        # Unauthenticated, like Telnyx's own media links, so keyed by the message's UUID, not its short item id.
+        item = emu.store.item_by_provider_id(message_id)
+        blob = emu.store.blob(item["id"], idx) if item and item["channel"] == "sms" else None
         if not blob:
             return errors(404, "10005", "Resource not found", "No such media.")
         return Response(blob[2], media_type=blob[1])
