@@ -177,7 +177,7 @@ async def test_a_number_found_and_ordered_becomes_one_the_app_can_text_from(teln
     owned = {n["phone_number"] for n in (await telnyx.get("/v2/phone_numbers")).json()["data"]}
     assert not owned & set(numbers)
 
-    order = await telnyx.post("/v2/number_orders", json={"phone_numbers": [{"phone_number": numbers[0]}], "messaging_profile_id": "mp-1"})
+    order = await telnyx.post("/v2/number_orders", json={"phone_numbers": [{"phone_number": numbers[0]}], "messaging_profile_id": "mp-1", "customer_reference": "org-1"})
     assert order.status_code == 200
     [ordered] = order.json()["data"]["phone_numbers"]
     assert (ordered["phone_number"], ordered["status"]) == (numbers[0], "success")
@@ -186,3 +186,8 @@ async def test_a_number_found_and_ordered_becomes_one_the_app_can_text_from(teln
 
     again = await telnyx.post("/v2/number_orders", json={"phone_numbers": [{"phone_number": numbers[0]}]})
     assert again.status_code == 422, "a number the app already has is not for sale"
+
+    # A retried run finds what it already bought by the reference it ordered under.
+    listed = (await telnyx.get("/v2/number_orders", params={"filter[customer_reference]": "org-1", "page[size]": "20"})).json()
+    assert [n["phone_number"] for o in listed["data"] for n in o["phone_numbers"]] == [numbers[0]]
+    assert (await telnyx.get("/v2/number_orders", params={"filter[customer_reference]": "org-2"})).json()["data"] == []

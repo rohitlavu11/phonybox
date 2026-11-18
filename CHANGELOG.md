@@ -4,6 +4,12 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-18
+
+### Added
+
+- Telnyx `GET /v2/number_orders`, with `filter[customer_reference]` and paging. Number orders are kept, so an app that looks up what it already bought before ordering (and never buys twice on a retry) works unchanged.
+
 ## [0.2.0] - 2026-11-18
 
 ### Added
@@ -42,6 +48,7 @@ First public release.
 - **Docker image** (`ghcr.io/rohitlavu11/phonybox`, amd64 and arm64) and a Compose file.
 - **Deterministic contract suite** against provider JSON Schemas, golden files and the official SDKs, run on every PR and nightly.
 
-[Unreleased]: https://github.com/rohitlavu11/phonybox/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/rohitlavu11/phonybox/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/rohitlavu11/phonybox/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/rohitlavu11/phonybox/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/rohitlavu11/phonybox/releases/tag/v0.1.0

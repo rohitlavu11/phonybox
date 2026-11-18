@@ -2,7 +2,7 @@
 
 Outbound (your app -> emulator): POST /v2/messages, GET /v2/messages/:id,
 /v2/faxes (send, list, get, delete), messaging profiles, phone numbers, and
-number search and ordering (an ordered number joins appNumbers).
+number search, ordering and listing orders (an ordered number joins appNumbers).
 
 Inbound (emulator -> your app), signed with Ed25519 like Telnyx:
   messaging: message.sent, message.finalized for outbound; message.received when
@@ -504,7 +504,19 @@ def build_app(emu: Emulator) -> FastAPI:
             ],
             "sub_number_orders_ids": [], "requirements_met": True, "status": "success", "created_at": now, "updated_at": now,
         }
+        emu.store.add_number_order(order)
         return JSONResponse({"data": order})
+
+    @app.get("/v2/number_orders")
+    async def list_number_orders(request: Request) -> Response:
+        """Apps look an order up by its customer_reference, so a retried run never buys a second number."""
+        if r := auth_failed(request):
+            return r
+        q = request.query_params
+        number = max(1, int(q.get("page[number]", 1)))
+        size = max(1, min(int(q.get("page[size]", 20)), 250))
+        orders, total = emu.store.number_orders(q.get("filter[customer_reference]"), (number - 1) * size, size)
+        return JSONResponse({"data": orders, "meta": {"page_number": number, "page_size": size, "total_pages": max(1, -(-total // size)), "total_results": total}})
 
     @app.post("/v2/faxes")
     async def create_fax(request: Request) -> Response:

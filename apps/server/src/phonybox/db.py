@@ -169,6 +169,14 @@ CREATE TABLE IF NOT EXISTS mg_routes (
   description {TEXT} NOT NULL,
   created_at  {TEXT} NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS tx_number_orders (
+  id                 {TEXT} PRIMARY KEY,
+  customer_reference {TEXT},
+  created_at         {TEXT} NOT NULL,
+  data               {TEXT} NOT NULL
+);
+CREATE INDEX IF NOT EXISTS tx_number_orders_ref ON tx_number_orders (customer_reference, created_at);
 """
 
 _TYPES: dict[Dialect, dict[str, str]] = {

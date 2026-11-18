@@ -1,7 +1,7 @@
 {
   "name": "phonybox",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Local emulator for Mailgun and Telnyx (email, SMS/MMS, fax) with signed webhooks, an inspector UI and a control API for testing apps and AI agents.",
   "license": "Apache-2.0",
   "repository": {

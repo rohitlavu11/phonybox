@@ -12,6 +12,7 @@ Listens on **:4102**. Point the SDK's `baseURL` / `base_url` at `http://localhos
 | `GET` | `/v2/phone_numbers` | Your app numbers. |
 | `GET` | `/v2/available_phone_numbers` | Fictional 555-01xx numbers that are free: `filter[limit]` (default 10), `filter[national_destination_code]` for an area code. US local only. |
 | `POST` | `/v2/number_orders` | `phone_numbers: [{phone_number}]`. An ordered number joins `appNumbers` at once (`status: success`), so your app can text and fax from it. A number the app already has is refused with `422`. |
+| `GET` | `/v2/number_orders` | The orders placed, newest first: `filter[customer_reference]`, `page[number]`, `page[size]`. |
 | `GET` | `/media/{message id}/{n}` | An MMS's media, linked from the message's `media`. |
 
 Messages are segmented the way carriers do it: GSM-7 at 160/153 characters, UCS-2 at 70/67.
